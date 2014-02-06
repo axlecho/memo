@@ -4,5 +4,8 @@
     <string name="app_name">memo</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-
+    <string name="menu_add">添加</string>
+    <string name="menu_edit">编辑</string>
+    <string name="menu_save">完成</string>
+	<string name="label_newitem">新建记录</string>
 </resources>
