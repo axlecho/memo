@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -59,6 +61,17 @@ public class NewItemActivity extends SherlockActivity {
 
 		// imageView = new ImageView(this);
 		imageView = (ImageView) findViewById(R.id.imgcontext);
+		ViewTreeObserver vto2 = imageView.getViewTreeObserver();
+		vto2.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+			@Override
+			public void onGlobalLayout() {
+				imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+
+				result = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Config.ARGB_8888);
+				imageView.setImageBitmap(result);
+				canvas = new Canvas(result);
+			}
+		});
 		imageView.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent me) {
@@ -80,7 +93,7 @@ public class NewItemActivity extends SherlockActivity {
 		popupColor = new PopupWindow(popupColorView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
 		popupColor.setBackgroundDrawable(new BitmapDrawable());
 		popupColor.setOutsideTouchable(true);
-		popupColor.setAnimationStyle(R.style.PopupAnimation);
+		// popupColor.setAnimationStyle(R.style.PopupAnimation);
 
 		btnSelectGreen = (Button) popupColorView.findViewById(R.id.btn_select_green);
 		btnSelectBlue = (Button) popupColorView.findViewById(R.id.btn_select_blue);
@@ -181,14 +194,6 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 		});
-	}
-
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		result = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Config.ARGB_8888);
-		imageView.setImageBitmap(result);
-		canvas = new Canvas(result);
-		super.onWindowFocusChanged(hasFocus);
 	}
 
 	@Override

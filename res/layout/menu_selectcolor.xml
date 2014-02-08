@@ -1,47 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/lin_main"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingRight="120dip" >
+    android:orientation="horizontal" >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:orientation="horizontal" >
+    <Button
+        android:id="@+id/btn_select_green"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_marginRight="10dip"
+        android:layout_weight="1"
+        android:background="@color/green" />
 
-        <Button
-            android:id="@+id/btn_select_green"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dip"
-            android:layout_weight="1"
-            android:background="@color/green" />
+    <Button
+        android:id="@+id/btn_select_blue"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_marginRight="10dip"
+        android:layout_weight="1"
+        android:background="@color/blue" />
 
-        <Button
-            android:id="@+id/btn_select_blue"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dip"
-            android:layout_weight="1"
-            android:background="@color/blue" />
+    <Button
+        android:id="@+id/btn_select_yellow"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_marginRight="10dip"
+        android:layout_weight="1"
+        android:background="@color/yellow" />
 
-        <Button
-            android:id="@+id/btn_select_yellow"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dip"
-            android:layout_weight="1"
-            android:background="@color/yellow" />
-
-        <Button
-            android:id="@+id/btn_select_red"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dip"
-            android:layout_weight="1"
-            android:background="@color/red" />
-    </LinearLayout>
+    <Button
+        android:id="@+id/btn_select_red"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_marginRight="10dip"
+        android:layout_weight="1"
+        android:background="@color/red" />
 
 </LinearLayout>
