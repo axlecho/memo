@@ -17,4 +17,9 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <style name="PopupAnimation" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/popup_selectcolor_show</item>
+        <item name="android:windowExitAnimation">@anim/popup_selectcolor_hide</item>
+    </style>
+
 </resources>
