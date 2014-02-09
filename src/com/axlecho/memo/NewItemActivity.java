@@ -1,5 +1,11 @@
 package com.axlecho.memo;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -7,6 +13,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -206,6 +214,11 @@ public class NewItemActivity extends SherlockActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_save:
+			try {
+				insertRecord();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			finish();
 			break;
 		default:
@@ -214,4 +227,33 @@ public class NewItemActivity extends SherlockActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void insertRecord() throws IOException {
+
+		File destDir = new File(Environment.getExternalStorageDirectory().getPath() + "/Memo/");
+		if (!destDir.exists()) {
+			destDir.mkdirs();
+		}
+
+		String note = "";
+		String picPath = "";
+		String voicePath = "";
+		picPath = "memo_pic_data" + System.currentTimeMillis();
+
+		File f = new File(Environment.getExternalStorageDirectory().getPath() + "/Memo/" + picPath + ".png");
+		f.createNewFile();
+		FileOutputStream fOut = new FileOutputStream(f);
+		result.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+		fOut.flush();
+		fOut.close();
+
+		SQLiteDatabase db = this.openOrCreateDatabase("datas", MODE_PRIVATE, null);
+
+		ContentValues record = new ContentValues();
+		record.put("note", note);
+		record.put("pic_path", Environment.getExternalStorageDirectory().getPath() + "/Memo/" + picPath);
+		record.put("voice_path", voicePath);
+		long rowid = db.insert("memo_datas", null, record);
+		Log.i("axlecho", "插入数据库结果：" + rowid);
+		db.close();
+	}
 }
