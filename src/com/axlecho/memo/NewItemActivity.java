@@ -238,8 +238,8 @@ public class NewItemActivity extends SherlockActivity {
 		String picPath = "";
 		String voicePath = "";
 		picPath = "memo_pic_data" + System.currentTimeMillis();
-
-		File f = new File(Environment.getExternalStorageDirectory().getPath() + "/Memo/" + picPath + ".png");
+		picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" +picPath +".png";
+		File f = new File( picPath);
 		f.createNewFile();
 		FileOutputStream fOut = new FileOutputStream(f);
 		result.compress(Bitmap.CompressFormat.PNG, 100, fOut);
@@ -250,7 +250,7 @@ public class NewItemActivity extends SherlockActivity {
 
 		ContentValues record = new ContentValues();
 		record.put("note", note);
-		record.put("pic_path", Environment.getExternalStorageDirectory().getPath() + "/Memo/" + picPath);
+		record.put("pic_path", picPath);
 		record.put("voice_path", voicePath);
 		long rowid = db.insert("memo_datas", null, record);
 		Log.i("axlecho", "插入数据库结果：" + rowid);

@@ -24,37 +24,38 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class MainActivity extends SherlockActivity {
 	private ListView listView;
+	private List<Map<String, Object>> datas = new ArrayList<Map<String, Object>>();
+	private SimpleAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		getData();
 		listView = new ListView(this);
-		SimpleAdapter adapter = new SimpleAdapter(this, getData(), R.layout.list_item_view, new String[] { "node",
-				"time", "img" }, new int[] { R.id.note, R.id.time, R.id.img });
+		adapter = new SimpleAdapter(this, datas, R.layout.list_item_view, new String[] { "node", "time", "img" },
+				new int[] { R.id.note, R.id.time, R.id.img });
 
 		adapter.setViewBinder(new ViewBinder() {
 
 			public boolean setViewValue(View view, Object data, String textRepresentation) {
 				if (view instanceof ImageView && data instanceof Bitmap) {
 					ImageView iv = (ImageView) view;
-
 					iv.setImageBitmap((Bitmap) data);
 					return true;
-				} else
-					return false;
+				}
+				return false;
 			}
 		});
+
 		listView.setAdapter(adapter);
 		adapter.notifyDataSetChanged();
-
 		setContentView(listView);
 
 	}
 
-	private List<Map<String, Object>> getData() {
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-
+	private void getData() {
+		datas.clear();
 		SQLiteDatabase db = this.openOrCreateDatabase("datas", MODE_PRIVATE, null);
 		Cursor cursor = db.rawQuery("select * from memo_datas", null);
 		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
@@ -67,15 +68,13 @@ public class MainActivity extends SherlockActivity {
 			map.put("note", cursor.getString(noteColumn));
 			map.put("time", cursor.getString(timeColume));
 			map.put("img", BitmapFactory.decodeFile(cursor.getString(picPathColumn)));
-			list.add(map);
+			datas.add(map);
 
 			Log.i("axlecho", "note:" + cursor.getString(noteColumn));
 			Log.i("axlecho", "pic_path:" + cursor.getString(picPathColumn));
 			Log.i("axlecho", "time:" + cursor.getString(timeColume));
 		}
 		db.close();
-
-		return list;
 	}
 
 	@Override
@@ -105,7 +104,10 @@ public class MainActivity extends SherlockActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+		getData();
+		adapter.notifyDataSetChanged();
+		Log.i("axlecho", "update data");
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+
 }
