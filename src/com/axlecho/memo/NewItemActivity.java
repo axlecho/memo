@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -56,6 +58,7 @@ public class NewItemActivity extends SherlockActivity {
 	private TextView penSizeView;
 
 	private Paint paint;
+	public final static int CAMERA_RESULT = 8888;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -221,10 +224,24 @@ public class NewItemActivity extends SherlockActivity {
 			}
 			finish();
 			break;
+		case R.id.menu_photo:
+			Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
+			startActivityForResult(cameraIntent, CAMERA_RESULT);
+			break;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == CAMERA_RESULT) {
+			Bundle extras = data.getExtras();
+			Bitmap b = (Bitmap) extras.get("data");
+			imageView.setImageBitmap(b);
+		}
 	}
 
 	private void insertRecord() throws IOException {
@@ -238,8 +255,8 @@ public class NewItemActivity extends SherlockActivity {
 		String picPath = "";
 		String voicePath = "";
 		picPath = "memo_pic_data" + System.currentTimeMillis();
-		picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" +picPath +".png";
-		File f = new File( picPath);
+		picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + picPath + ".png";
+		File f = new File(picPath);
 		f.createNewFile();
 		FileOutputStream fOut = new FileOutputStream(f);
 		result.compress(Bitmap.CompressFormat.PNG, 100, fOut);

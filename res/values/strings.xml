@@ -7,6 +7,7 @@
     <string name="menu_add">添加</string>
     <string name="menu_edit">编辑</string>
     <string name="menu_save">完成</string>
+    <string name="menu_photo">照片</string>
 	<string name="label_newitem">新建记录</string>
 	<string name="select_color">选择颜色</string>
 	<string name="select_size">选择笔触大小</string>

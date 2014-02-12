@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/menu_photo"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_photo"/>
+    
+    <item
         android:id="@+id/menu_save"
         android:showAsAction="ifRoom|withText"
         android:title="@string/menu_save"/>
