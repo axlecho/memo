@@ -30,4 +30,12 @@
             android:textSize="13sp" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_del"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:background="#ff0000"
+        android:text="del"
+        android:visibility="gone" />
+
 </LinearLayout>

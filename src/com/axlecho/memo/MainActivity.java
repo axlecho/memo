@@ -5,20 +5,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.SimpleAdapter.ViewBinder;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -27,8 +32,7 @@ import com.actionbarsherlock.view.MenuItem;
 public class MainActivity extends SherlockActivity {
 	private ListView listView;
 	private List<Map<String, Object>> listDatas = new ArrayList<Map<String, Object>>();
-	private SimpleAdapter adapter;
-	private Bitmap bm;
+	private ListAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,21 +40,23 @@ public class MainActivity extends SherlockActivity {
 
 		initListDatas();
 
-		String[] from = new String[] { "note", "time", "img" };
-		int[] to = new int[] { R.id.note, R.id.time, R.id.img };
-		adapter = new SimpleAdapter(this, listDatas, R.layout.list_item_view, from, to);
-		adapter.setViewBinder(new ViewBinder() {
-
-			public boolean setViewValue(View view, Object data, String textRepresentation) {
-				if (view instanceof ImageView) {
-					ImageView iv = (ImageView) view;
-					iv.setImageBitmap(BitmapFactory.decodeFile((String) data));
-					return true;
-				}
-				return false;
-			}
-		});
-
+		// String[] from = new String[] { "note", "time", "img" };
+		// int[] to = new int[] { R.id.note, R.id.time, R.id.img };
+		// adapter = new SimpleAdapter(this, listDatas, R.layout.list_item_view,
+		// from, to);
+		// adapter.setViewBinder(new ViewBinder() {
+		//
+		// public boolean setViewValue(View view, Object data, String
+		// textRepresentation) {
+		// if (view instanceof ImageView) {
+		// ImageView iv = (ImageView) view;
+		// iv.setImageBitmap(BitmapFactory.decodeFile((String) data));
+		// return true;
+		// }
+		// return false;
+		// }
+		// });
+		adapter = new ListAdapter();
 		listView = new ListView(this);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
@@ -124,5 +130,144 @@ public class MainActivity extends SherlockActivity {
 			Log.i("axlecho", "time:" + cursor.getString(timeColume));
 		}
 		db.close();
+	}
+
+	private class ListViewEx extends ListView implements OnTouchListener {
+		private int pointX = -1;
+		private int pointY = -1;
+		private int position = -1;
+		private int endX = -1;
+		private int endY = -1;
+		private int newpos = -1;
+		private Button curDel_btn;
+
+		public ListViewEx(Context context) {
+			super(context);
+
+		}
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				System.out.println("====>>>>>>>>>>>>>>ACTION_DOWN" + MotionEvent.ACTION_DOWN);
+				// 手指按下,计算焦点位于ListView的那个条目
+				pointX = (int) event.getX();
+				pointY = (int) event.getY();
+				// 备注1
+				position = listView.pointToPosition(pointX, pointY);
+				if (curDel_btn != null) {
+					curDel_btn.setVisibility(View.GONE);
+				}
+				break;
+			case MotionEvent.ACTION_MOVE:
+
+				break;
+			case MotionEvent.ACTION_UP:
+				System.out.println("====>>>>>>>>>>>>>>ACTION_UP" + MotionEvent.ACTION_UP);
+				endX = (int) event.getX();
+				endY = (int) event.getY();
+				newpos = listView.pointToPosition(endX, endY);
+				// 原本想着加上这个条件（newpos==position）是不是更精确些，
+				// 经过实践发现，其实我们在滑动listView的列表的时候有时候更渴望有滑动就ok
+				if (Math.abs(endX - pointX) > 30) {
+					// 获取到ListView第一个可见条目的position
+					int firstVisiblePosition = listView.getFirstVisiblePosition();
+
+					// --------------备注2
+					View view = listView.getChildAt(position - firstVisiblePosition);
+					Button delbtn = (Button) view.findViewById(R.id.btn_del);
+					delbtn.setVisibility(View.VISIBLE);
+					curDel_btn = delbtn;
+					delbtn.setOnClickListener(new View.OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							listDatas.remove(position);
+							adapter.notifyDataSetChanged();
+						}
+					});
+
+				}
+				break;
+
+			default:
+				break;
+			}
+			return false;
+		}
+
+	}
+
+	private class ListAdapter extends BaseAdapter {
+
+		private float downX = -1;
+		private float upX = -1;
+
+		@Override
+		public int getCount() {
+			return listDatas.size();
+		}
+
+		@Override
+		public Object getItem(int pos) {
+			return listDatas.get(pos);
+		}
+
+		@Override
+		public long getItemId(int pos) {
+			return 0;
+		}
+
+		@Override
+		public View getView(final int pos, View convertView, ViewGroup parent) {
+			View view = getLayoutInflater().inflate(R.layout.list_item_view, null);
+			TextView noteView = (TextView) view.findViewById(R.id.note);
+			TextView timeView = (TextView) view.findViewById(R.id.time);
+			ImageView imageView = (ImageView) view.findViewById(R.id.img);
+
+			noteView.setText((String) listDatas.get(pos).get("note"));
+			timeView.setText((String) listDatas.get(pos).get("time"));
+			imageView.setImageBitmap(BitmapFactory.decodeFile((String) listDatas.get(pos).get("img")));
+			view.setOnTouchListener(new OnTouchListener() {
+
+				@Override
+				public boolean onTouch(View v, MotionEvent me) {
+					switch (me.getAction()) {
+					case MotionEvent.ACTION_MOVE:
+						Log.d("axlecho", "action:move");
+						break;
+					case MotionEvent.ACTION_DOWN:
+						v.setBackgroundColor(Color.CYAN);
+						downX = me.getX();
+
+						Log.d("axlecho", "action:down");
+						break;
+					case MotionEvent.ACTION_UP:
+						Log.d("axlecho", "action:up");
+						upX = me.getX();
+						v.setBackgroundColor(Color.TRANSPARENT);
+						if (Math.abs(upX - downX) > 20) {
+							Button btnDel = (Button) v.findViewById(R.id.btn_del);
+							if (btnDel.getVisibility() == View.VISIBLE) {
+								btnDel.setVisibility(View.GONE);
+							} else {
+								btnDel.setVisibility(View.VISIBLE);
+							}
+						} else {
+							listView.performItemClick(v, pos, listView.getItemIdAtPosition(pos));
+						}
+						break;
+
+					default:
+						break;
+					}
+					return true;
+				}
+
+			});
+			return view;
+		}
 	}
 }
