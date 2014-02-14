@@ -14,6 +14,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,9 +43,14 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class NewItemActivity extends SherlockActivity {
 
-	private Bitmap result;
+	private Bitmap btmImage;
 	private ImageView imageView;
-	private Canvas canvas;
+	private Canvas canvasImage;
+
+	private Bitmap btmSurface;
+	private ImageView imageSurfaceView;
+	private Canvas canvasSurface;
+
 	private int old_x;
 	private int old_y;
 
@@ -66,6 +73,8 @@ public class NewItemActivity extends SherlockActivity {
 	private PopupWindow popupAddWindow;
 	private EditText editAddTextView;
 
+	private Button btnEraser;
+
 	private Paint paint;
 
 	@Override
@@ -75,9 +84,21 @@ public class NewItemActivity extends SherlockActivity {
 
 		initPaint();
 		initImageView();
+		initImageSurfaceView();
 		initPopupSize();
 		initPopupColor();
 		initPopupAddText();
+
+		btnEraser = (Button) findViewById(R.id.btn_eraser);
+		btnEraser.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				paint.setAlpha(0);
+				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+			}
+
+		});
 	}
 
 	@Override
@@ -117,13 +138,13 @@ public class NewItemActivity extends SherlockActivity {
 					+ "/workupload.jpg");
 			if (null != camorabitmap) {
 				// 下面这两句是对图片按照一定的比例缩放，这样就可以完美地显示出来。
-				int scale = reckonThumbnail(camorabitmap.getWidth(), camorabitmap.getHeight(), canvas.getWidth(),
-						canvas.getHeight());
+				int scale = reckonThumbnail(camorabitmap.getWidth(), camorabitmap.getHeight(), canvasImage.getWidth(),
+						canvasImage.getHeight());
 				Bitmap b = PicZoom(camorabitmap, camorabitmap.getWidth() / scale, camorabitmap.getHeight() / scale);
 				// Rect r = new Rect(0, 0, canvas.getWidth(),
 				// canvas.getHeight());
 				// canvas.drawBitmap(b, null, r, null);
-				canvas.drawBitmap(b, 0, 0, null);
+				canvasImage.drawBitmap(b, 0, 0, null);
 				// imageView.setImageBitmap(b);
 			}
 		}
@@ -154,11 +175,14 @@ public class NewItemActivity extends SherlockActivity {
 				+ System.currentTimeMillis() + ".png";
 		String voicePath = "";
 
+		// combine two layout
+		canvasImage.drawBitmap(btmSurface, 0, 0, null);
+
 		// save the image context.
 		File f = new File(picPath);
 		f.createNewFile();
 		FileOutputStream fOut = new FileOutputStream(f);
-		result.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+		btmImage.compress(Bitmap.CompressFormat.PNG, 100, fOut);
 		fOut.flush();
 		fOut.close();
 
@@ -182,29 +206,43 @@ public class NewItemActivity extends SherlockActivity {
 
 	private void initImageView() {
 		imageView = (ImageView) findViewById(R.id.view_image_context);
-		// get the sizes of imageView
 		ViewTreeObserver vto = imageView.getViewTreeObserver();
 		vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 			@Override
 			public void onGlobalLayout() {
 				imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-				result = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Config.ARGB_8888);
-				imageView.setImageBitmap(result);
-				canvas = new Canvas(result);
+				btmImage = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Config.ARGB_8888);
+				imageView.setImageBitmap(btmImage);
+				canvasImage = new Canvas(btmImage);
 			}
 		});
-		imageView.setOnTouchListener(new OnTouchListener() {
+	}
+
+	private void initImageSurfaceView() {
+		imageSurfaceView = (ImageView) findViewById(R.id.view_image_surface);
+		ViewTreeObserver vto = imageSurfaceView.getViewTreeObserver();
+		vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+			@Override
+			public void onGlobalLayout() {
+				imageSurfaceView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+				btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(),
+						Config.ARGB_8888);
+				imageSurfaceView.setImageBitmap(btmSurface);
+				canvasSurface = new Canvas(btmSurface);
+			}
+		});
+		imageSurfaceView.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent me) {
 				if (me.getAction() == MotionEvent.ACTION_DOWN) {
 					old_x = (int) me.getX();
 					old_y = (int) me.getY();
 				} else if (me.getAction() == MotionEvent.ACTION_MOVE) {
-					canvas.drawLine(old_x, old_y, me.getX(), me.getY(), paint);
+					canvasSurface.drawLine(old_x, old_y, me.getX(), me.getY(), paint);
 
 					old_x = (int) me.getX();
 					old_y = (int) me.getY();
-					imageView.invalidate();
+					imageSurfaceView.invalidate();
 				}
 				return true;
 			}
@@ -270,6 +308,8 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View arg0) {
+				paint.setAlpha(255);
+				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 				paint.setColor(Color.GREEN);
 				popupColor.dismiss();
 
@@ -280,8 +320,10 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View arg0) {
+				paint.setAlpha(255);
 				paint.setColor(Color.BLUE);
 				popupColor.dismiss();
+				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 			}
 
 		});
@@ -289,8 +331,10 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View arg0) {
+				paint.setAlpha(255);
 				paint.setColor(Color.RED);
 				popupColor.dismiss();
+				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 			}
 
 		});
@@ -298,8 +342,10 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View arg0) {
+				paint.setAlpha(255);
 				paint.setColor(Color.YELLOW);
 				popupColor.dismiss();
+				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 			}
 
 		});
@@ -340,4 +386,5 @@ public class NewItemActivity extends SherlockActivity {
 
 		});
 	}
+
 }

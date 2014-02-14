@@ -28,6 +28,7 @@ public class MainActivity extends SherlockActivity {
 	private ListView listView;
 	private List<Map<String, Object>> listDatas = new ArrayList<Map<String, Object>>();
 	private SimpleAdapter adapter;
+	private Bitmap bm;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +42,9 @@ public class MainActivity extends SherlockActivity {
 		adapter.setViewBinder(new ViewBinder() {
 
 			public boolean setViewValue(View view, Object data, String textRepresentation) {
-				if (view instanceof ImageView && data instanceof Bitmap) {
+				if (view instanceof ImageView) {
 					ImageView iv = (ImageView) view;
-					iv.setImageBitmap((Bitmap) data);
+					iv.setImageBitmap(BitmapFactory.decodeFile((String) data));
 					return true;
 				}
 				return false;
@@ -56,7 +57,12 @@ public class MainActivity extends SherlockActivity {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-				
+				final Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+				Map<String, Object> m = listDatas.get(pos);
+				Log.i("axlecho", (String) m.get("img"));
+				intent.putExtra("pic_path", (String) m.get("img"));
+
+				startActivity(intent);
 			}
 
 		});
@@ -110,7 +116,7 @@ public class MainActivity extends SherlockActivity {
 
 			map.put("note", cursor.getString(noteColumn));
 			map.put("time", cursor.getString(timeColume));
-			map.put("img", BitmapFactory.decodeFile(cursor.getString(picPathColumn)));
+			map.put("img", cursor.getString(picPathColumn));
 			listDatas.add(map);
 
 			Log.i("axlecho", "note:" + cursor.getString(noteColumn));

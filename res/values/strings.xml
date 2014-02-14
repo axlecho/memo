@@ -14,4 +14,6 @@
 	<string name="menu_tool">工具</string>
 	<string name="menu_text">文字</string>
 	<string name="add_text">添加文字</string>
+	<string name="btn_eraser">橡皮擦</string>
+	<string name="label_show">记录</string>
 </resources>

@@ -35,6 +35,11 @@
             android:label="@string/label_newitem"
             android:theme="@style/Theme.Sherlock.Light" >
         </activity>
+        <activity
+            android:name="com.axlecho.memo.ShowActivity"
+            android:label="@string/label_show"
+            android:theme="@style/Theme.Sherlock.Light" >
+        </activity>
     </application>
 
 </manifest>
