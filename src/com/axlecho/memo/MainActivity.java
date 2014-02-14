@@ -57,7 +57,7 @@ public class MainActivity extends SherlockActivity {
 		// }
 		// });
 		adapter = new ListAdapter();
-		listView = new ListView(this);
+		listView = new ListViewEx(this);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -73,7 +73,6 @@ public class MainActivity extends SherlockActivity {
 
 		});
 		setContentView(listView);
-
 	}
 
 	@Override
@@ -143,7 +142,7 @@ public class MainActivity extends SherlockActivity {
 
 		public ListViewEx(Context context) {
 			super(context);
-
+			setOnTouchListener(this);
 		}
 
 		@Override
@@ -170,11 +169,10 @@ public class MainActivity extends SherlockActivity {
 				newpos = listView.pointToPosition(endX, endY);
 				// 原本想着加上这个条件（newpos==position）是不是更精确些，
 				// 经过实践发现，其实我们在滑动listView的列表的时候有时候更渴望有滑动就ok
-				if (Math.abs(endX - pointX) > 30) {
+				if (Math.abs(endX - pointX) > 50) {
 					// 获取到ListView第一个可见条目的position
 					int firstVisiblePosition = listView.getFirstVisiblePosition();
 
-					// --------------备注2
 					View view = listView.getChildAt(position - firstVisiblePosition);
 					Button delbtn = (Button) view.findViewById(R.id.btn_del);
 					delbtn.setVisibility(View.VISIBLE);
@@ -183,7 +181,6 @@ public class MainActivity extends SherlockActivity {
 
 						@Override
 						public void onClick(View v) {
-							// TODO Auto-generated method stub
 							listDatas.remove(position);
 							adapter.notifyDataSetChanged();
 						}
@@ -201,9 +198,6 @@ public class MainActivity extends SherlockActivity {
 	}
 
 	private class ListAdapter extends BaseAdapter {
-
-		private float downX = -1;
-		private float upX = -1;
 
 		@Override
 		public int getCount() {
@@ -230,43 +224,7 @@ public class MainActivity extends SherlockActivity {
 			noteView.setText((String) listDatas.get(pos).get("note"));
 			timeView.setText((String) listDatas.get(pos).get("time"));
 			imageView.setImageBitmap(BitmapFactory.decodeFile((String) listDatas.get(pos).get("img")));
-			view.setOnTouchListener(new OnTouchListener() {
 
-				@Override
-				public boolean onTouch(View v, MotionEvent me) {
-					switch (me.getAction()) {
-					case MotionEvent.ACTION_MOVE:
-						Log.d("axlecho", "action:move");
-						break;
-					case MotionEvent.ACTION_DOWN:
-						v.setBackgroundColor(Color.CYAN);
-						downX = me.getX();
-
-						Log.d("axlecho", "action:down");
-						break;
-					case MotionEvent.ACTION_UP:
-						Log.d("axlecho", "action:up");
-						upX = me.getX();
-						v.setBackgroundColor(Color.TRANSPARENT);
-						if (Math.abs(upX - downX) > 20) {
-							Button btnDel = (Button) v.findViewById(R.id.btn_del);
-							if (btnDel.getVisibility() == View.VISIBLE) {
-								btnDel.setVisibility(View.GONE);
-							} else {
-								btnDel.setVisibility(View.VISIBLE);
-							}
-						} else {
-							listView.performItemClick(v, pos, listView.getItemIdAtPosition(pos));
-						}
-						break;
-
-					default:
-						break;
-					}
-					return true;
-				}
-
-			});
 			return view;
 		}
 	}
