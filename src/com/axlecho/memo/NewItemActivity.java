@@ -4,18 +4,21 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,6 +28,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
@@ -57,27 +61,133 @@ public class NewItemActivity extends SherlockActivity {
 	private SeekBar seekbarSize;
 	private TextView penSizeView;
 
+	private Button btnAddText;
+	private View popupAddTextView;
+	private PopupWindow popupAddWindow;
+	private EditText editAddTextView;
+
 	private Paint paint;
-	public final static int CAMERA_RESULT = 8888;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_newitem);
 
-		paint = new Paint();
-		paint.setColor(Color.BLUE);
-		paint.setStrokeWidth(2);
+		initPaint();
+		initImageView();
+		initPopupSize();
+		initPopupColor();
+		initPopupAddText();
+	}
 
-		// imageView = new ImageView(this);
-		imageView = (ImageView) findViewById(R.id.imgcontext);
-		ViewTreeObserver vto2 = imageView.getViewTreeObserver();
-		vto2.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getSupportMenuInflater().inflate(R.menu.newitem, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_save:
+			try {
+				insertRecord();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			finish();
+			break;
+		case R.id.menu_photo:
+			Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			Uri imageUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "workupload.jpg"));
+			cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+			startActivityForResult(cameraIntent, Const.CAMERARESULT);
+			break;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == Const.CAMERARESULT) {
+			Bitmap camorabitmap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory()
+					+ "/workupload.jpg");
+			if (null != camorabitmap) {
+				// 下面这两句是对图片按照一定的比例缩放，这样就可以完美地显示出来。
+				int scale = reckonThumbnail(camorabitmap.getWidth(), camorabitmap.getHeight(), canvas.getWidth(),
+						canvas.getHeight());
+				Bitmap b = PicZoom(camorabitmap, camorabitmap.getWidth() / scale, camorabitmap.getHeight() / scale);
+				// Rect r = new Rect(0, 0, canvas.getWidth(),
+				// canvas.getHeight());
+				// canvas.drawBitmap(b, null, r, null);
+				canvas.drawBitmap(b, 0, 0, null);
+				// imageView.setImageBitmap(b);
+			}
+		}
+	}
+
+	public static int reckonThumbnail(int oldWidth, int oldHeight, int newWidth, int newHeight) {
+
+		return oldHeight / newWidth;
+	}
+
+	public static Bitmap PicZoom(Bitmap bmp, int width, int height) {
+		int bmpWidth = bmp.getWidth();
+		int bmpHeght = bmp.getHeight();
+		Matrix matrix = new Matrix();
+		matrix.postScale((float) width / bmpWidth, (float) height / bmpHeght);
+		matrix.postRotate(90);
+		return Bitmap.createBitmap(bmp, 0, 0, bmpWidth, bmpHeght, matrix, true);
+	}
+
+	private void insertRecord() throws IOException {
+
+		File destDir = new File(Environment.getExternalStorageDirectory().getPath() + "/Memo/");
+		if (!destDir.exists()) {
+			destDir.mkdirs();
+		}
+		String note = editAddTextView.getText().toString();
+		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data"
+				+ System.currentTimeMillis() + ".png";
+		String voicePath = "";
+
+		// save the image context.
+		File f = new File(picPath);
+		f.createNewFile();
+		FileOutputStream fOut = new FileOutputStream(f);
+		result.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+		fOut.flush();
+		fOut.close();
+
+		// insert record to datebase.
+		SQLiteDatabase db = this.openOrCreateDatabase("datas", MODE_PRIVATE, null);
+		ContentValues record = new ContentValues();
+		record.put("note", note);
+		record.put("pic_path", picPath);
+		record.put("voice_path", voicePath);
+		long rowid = db.insert("memo_datas", null, record);
+		Log.i("axlecho", "插入数据库结果：" + rowid);
+		db.close();
+	}
+
+	private void initPaint() {
+		paint = new Paint();
+		paint.setColor(Const.DEFAULTCOLOR);
+		paint.setStrokeWidth(Const.DEFAULTPENSIZE);
+		paint.setAntiAlias(true);
+	}
+
+	private void initImageView() {
+		imageView = (ImageView) findViewById(R.id.view_image_context);
+		// get the sizes of imageView
+		ViewTreeObserver vto = imageView.getViewTreeObserver();
+		vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 			@Override
 			public void onGlobalLayout() {
 				imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-
 				result = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Config.ARGB_8888);
 				imageView.setImageBitmap(result);
 				canvas = new Canvas(result);
@@ -99,7 +209,52 @@ public class NewItemActivity extends SherlockActivity {
 				return true;
 			}
 		});
+	}
 
+	private void initPopupSize() {
+		popupSizeView = getLayoutInflater().inflate(R.layout.menu_selectsize, null, true);
+		popupSize = new PopupWindow(popupSizeView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
+		popupSize.setBackgroundDrawable(new BitmapDrawable());
+		popupSize.setOutsideTouchable(true);
+
+		penSizeView = (TextView) popupSizeView.findViewById(R.id.view_penSize);
+		seekbarSize = (SeekBar) popupSizeView.findViewById(R.id.seekbar_selectsize);
+		seekbarSize.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar arg0, int progress, boolean fromUser) {
+				penSizeView.setText("" + progress);
+				paint.setStrokeWidth(progress);
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar arg0) {
+
+			}
+
+			@Override
+			public void onStopTrackingTouch(SeekBar arg0) {
+
+			}
+
+		});
+
+		btnSelectSize = (Button) findViewById(R.id.btn_selectsize);
+		btnSelectSize.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (popupSize.isShowing()) {
+					popupSize.dismiss();
+				} else {
+					popupSize.showAsDropDown(v);
+				}
+			}
+
+		});
+	}
+
+	private void initPopupColor() {
 		popupColorView = getLayoutInflater().inflate(R.layout.menu_selectcolor, null, true);
 		popupColor = new PopupWindow(popupColorView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
 		popupColor.setBackgroundDrawable(new BitmapDrawable());
@@ -162,115 +317,27 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 		});
+	}
 
-		popupSizeView = getLayoutInflater().inflate(R.layout.menu_selectsize, null, true);
-		popupSize = new PopupWindow(popupSizeView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
-		popupSize.setBackgroundDrawable(new BitmapDrawable());
-		popupSize.setOutsideTouchable(true);
+	private void initPopupAddText() {
+		popupAddTextView = getLayoutInflater().inflate(R.layout.menu_addtext, null, true);
+		popupAddWindow = new PopupWindow(popupAddTextView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
+		popupAddWindow.setBackgroundDrawable(new BitmapDrawable());
+		popupAddWindow.setOutsideTouchable(true);
+		editAddTextView = (EditText) popupAddTextView.findViewById(R.id.view_addnote);
 
-		penSizeView = (TextView) popupSizeView.findViewById(R.id.view_penSize);
-		seekbarSize = (SeekBar) popupSizeView.findViewById(R.id.seekbar_selectsize);
-		seekbarSize.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			@Override
-			public void onProgressChanged(SeekBar arg0, int progress, boolean fromUser) {
-				penSizeView.setText("" + progress);
-				paint.setStrokeWidth(progress);
-			}
-
-			@Override
-			public void onStartTrackingTouch(SeekBar arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onStopTrackingTouch(SeekBar arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-		});
-
-		btnSelectSize = (Button) findViewById(R.id.btn_selectsize);
-		btnSelectSize.setOnClickListener(new OnClickListener() {
+		btnAddText = (Button) findViewById(R.id.btn_addtext);
+		btnAddText.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				if (popupSize.isShowing()) {
-					popupSize.dismiss();
+				if (popupAddWindow.isShowing()) {
+					popupAddWindow.dismiss();
 				} else {
-					popupSize.showAsDropDown(v);
+					popupAddWindow.showAsDropDown(v);
 				}
 			}
 
 		});
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getSupportMenuInflater().inflate(R.menu.newitem, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_save:
-			try {
-				insertRecord();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			finish();
-			break;
-		case R.id.menu_photo:
-			Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
-			startActivityForResult(cameraIntent, CAMERA_RESULT);
-			break;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == CAMERA_RESULT) {
-			Bundle extras = data.getExtras();
-			Bitmap b = (Bitmap) extras.get("data");
-			imageView.setImageBitmap(b);
-		}
-	}
-
-	private void insertRecord() throws IOException {
-
-		File destDir = new File(Environment.getExternalStorageDirectory().getPath() + "/Memo/");
-		if (!destDir.exists()) {
-			destDir.mkdirs();
-		}
-
-		String note = "";
-		String picPath = "";
-		String voicePath = "";
-		picPath = "memo_pic_data" + System.currentTimeMillis();
-		picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + picPath + ".png";
-		File f = new File(picPath);
-		f.createNewFile();
-		FileOutputStream fOut = new FileOutputStream(f);
-		result.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-		fOut.flush();
-		fOut.close();
-
-		SQLiteDatabase db = this.openOrCreateDatabase("datas", MODE_PRIVATE, null);
-
-		ContentValues record = new ContentValues();
-		record.put("note", note);
-		record.put("pic_path", picPath);
-		record.put("voice_path", voicePath);
-		long rowid = db.insert("memo_datas", null, record);
-		Log.i("axlecho", "插入数据库结果：" + rowid);
-		db.close();
 	}
 }

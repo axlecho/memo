@@ -13,6 +13,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -24,18 +26,18 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class MainActivity extends SherlockActivity {
 	private ListView listView;
-	private List<Map<String, Object>> datas = new ArrayList<Map<String, Object>>();
+	private List<Map<String, Object>> listDatas = new ArrayList<Map<String, Object>>();
 	private SimpleAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		getData();
-		listView = new ListView(this);
-		adapter = new SimpleAdapter(this, datas, R.layout.list_item_view, new String[] { "node", "time", "img" },
-				new int[] { R.id.note, R.id.time, R.id.img });
+		initListDatas();
 
+		String[] from = new String[] { "note", "time", "img" };
+		int[] to = new int[] { R.id.note, R.id.time, R.id.img };
+		adapter = new SimpleAdapter(this, listDatas, R.layout.list_item_view, from, to);
 		adapter.setViewBinder(new ViewBinder() {
 
 			public boolean setViewValue(View view, Object data, String textRepresentation) {
@@ -48,33 +50,18 @@ public class MainActivity extends SherlockActivity {
 			}
 		});
 
+		listView = new ListView(this);
 		listView.setAdapter(adapter);
-		adapter.notifyDataSetChanged();
+		listView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+				
+			}
+
+		});
 		setContentView(listView);
 
-	}
-
-	private void getData() {
-		datas.clear();
-		SQLiteDatabase db = this.openOrCreateDatabase("datas", MODE_PRIVATE, null);
-		Cursor cursor = db.rawQuery("select * from memo_datas", null);
-		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			Map<String, Object> map = new HashMap<String, Object>();
-			int noteColumn = cursor.getColumnIndex("note");
-			int picPathColumn = cursor.getColumnIndex("pic_path");
-			// int voiceColume = cursor.getColumnIndex("voice_path");
-			int timeColume = cursor.getColumnIndex("time");
-
-			map.put("note", cursor.getString(noteColumn));
-			map.put("time", cursor.getString(timeColume));
-			map.put("img", BitmapFactory.decodeFile(cursor.getString(picPathColumn)));
-			datas.add(map);
-
-			Log.i("axlecho", "note:" + cursor.getString(noteColumn));
-			Log.i("axlecho", "pic_path:" + cursor.getString(picPathColumn));
-			Log.i("axlecho", "time:" + cursor.getString(timeColume));
-		}
-		db.close();
 	}
 
 	@Override
@@ -84,11 +71,11 @@ public class MainActivity extends SherlockActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+	public boolean onOptionsItemSelected(MenuItem it) {
+		switch (it.getItemId()) {
 		case R.id.menu_add:
 			Intent intent = new Intent(MainActivity.this, NewItemActivity.class);
-			startActivityForResult(intent, 100);
+			startActivityForResult(intent, Const.NEWITEMRESULT);
 			break;
 		case R.id.menu_edit:
 			Log.i("menu", "item edit");
@@ -97,17 +84,39 @@ public class MainActivity extends SherlockActivity {
 			Log.i("menu", "item setting");
 			break;
 		default:
-			return super.onOptionsItemSelected(item);
+			return super.onOptionsItemSelected(it);
 		}
-		return super.onOptionsItemSelected(item);
+		return super.onOptionsItemSelected(it);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		getData();
+		if (requestCode == Const.NEWITEMRESULT)
+			initListDatas();
 		adapter.notifyDataSetChanged();
-		Log.i("axlecho", "update data");
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	private void initListDatas() {
+		listDatas.clear();
+		SQLiteDatabase db = this.openOrCreateDatabase("datas", MODE_PRIVATE, null);
+		Cursor cursor = db.rawQuery("select * from memo_datas", null);
+		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			int noteColumn = cursor.getColumnIndex("note");
+			int picPathColumn = cursor.getColumnIndex("pic_path");
+			// TODO int voiceColume = cursor.getColumnIndex("voice_path");
+			int timeColume = cursor.getColumnIndex("time");
+
+			map.put("note", cursor.getString(noteColumn));
+			map.put("time", cursor.getString(timeColume));
+			map.put("img", BitmapFactory.decodeFile(cursor.getString(picPathColumn)));
+			listDatas.add(map);
+
+			Log.i("axlecho", "note:" + cursor.getString(noteColumn));
+			Log.i("axlecho", "pic_path:" + cursor.getString(picPathColumn));
+			Log.i("axlecho", "time:" + cursor.getString(timeColume));
+		}
+		db.close();
+	}
 }
