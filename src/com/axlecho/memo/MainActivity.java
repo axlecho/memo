@@ -1,5 +1,6 @@
 package com.axlecho.memo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +11,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -39,23 +39,6 @@ public class MainActivity extends SherlockActivity {
 		super.onCreate(savedInstanceState);
 
 		initListDatas();
-
-		// String[] from = new String[] { "note", "time", "img" };
-		// int[] to = new int[] { R.id.note, R.id.time, R.id.img };
-		// adapter = new SimpleAdapter(this, listDatas, R.layout.list_item_view,
-		// from, to);
-		// adapter.setViewBinder(new ViewBinder() {
-		//
-		// public boolean setViewValue(View view, Object data, String
-		// textRepresentation) {
-		// if (view instanceof ImageView) {
-		// ImageView iv = (ImageView) view;
-		// iv.setImageBitmap(BitmapFactory.decodeFile((String) data));
-		// return true;
-		// }
-		// return false;
-		// }
-		// });
 		adapter = new ListAdapter();
 		listView = new ListViewEx(this);
 		listView.setAdapter(adapter);
@@ -114,14 +97,17 @@ public class MainActivity extends SherlockActivity {
 		Cursor cursor = db.rawQuery("select * from memo_datas", null);
 		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			Map<String, Object> map = new HashMap<String, Object>();
+			int recordIdColumn = cursor.getColumnIndex("recordid");
 			int noteColumn = cursor.getColumnIndex("note");
 			int picPathColumn = cursor.getColumnIndex("pic_path");
-			// TODO int voiceColume = cursor.getColumnIndex("voice_path");
+			int voiceColume = cursor.getColumnIndex("voice_path");
 			int timeColume = cursor.getColumnIndex("time");
 
 			map.put("note", cursor.getString(noteColumn));
 			map.put("time", cursor.getString(timeColume));
 			map.put("img", cursor.getString(picPathColumn));
+			map.put("id", cursor.getString(recordIdColumn));
+			map.put("voice", cursor.getString(voiceColume));
 			listDatas.add(map);
 
 			Log.i("axlecho", "note:" + cursor.getString(noteColumn));
@@ -129,6 +115,23 @@ public class MainActivity extends SherlockActivity {
 			Log.i("axlecho", "time:" + cursor.getString(timeColume));
 		}
 		db.close();
+	}
+
+	private void deleteRecord(Map<String, Object> map) {
+		SQLiteDatabase db = this.openOrCreateDatabase("datas", MODE_PRIVATE, null);
+		String sql = "delete from memo_datas where recordid=" + map.get("id");
+		Log.i("axlecho", "删除语句:" + sql);
+		db.execSQL(sql);
+
+		File pic_file = new File((String) map.get("img"));
+		if (pic_file.exists() && pic_file.isFile()) {
+			pic_file.delete();
+		}
+
+		File voice_file = new File((String) map.get("voice"));
+		if (voice_file.exists() && voice_file.isFile()) {
+			voice_file.delete();
+		}
 	}
 
 	private class ListViewEx extends ListView implements OnTouchListener {
@@ -149,11 +152,9 @@ public class MainActivity extends SherlockActivity {
 		public boolean onTouch(View v, MotionEvent event) {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
-				System.out.println("====>>>>>>>>>>>>>>ACTION_DOWN" + MotionEvent.ACTION_DOWN);
 				// 手指按下,计算焦点位于ListView的那个条目
 				pointX = (int) event.getX();
 				pointY = (int) event.getY();
-				// 备注1
 				position = listView.pointToPosition(pointX, pointY);
 				if (curDel_btn != null) {
 					curDel_btn.setVisibility(View.GONE);
@@ -163,13 +164,13 @@ public class MainActivity extends SherlockActivity {
 
 				break;
 			case MotionEvent.ACTION_UP:
-				System.out.println("====>>>>>>>>>>>>>>ACTION_UP" + MotionEvent.ACTION_UP);
 				endX = (int) event.getX();
 				endY = (int) event.getY();
 				newpos = listView.pointToPosition(endX, endY);
 				// 原本想着加上这个条件（newpos==position）是不是更精确些，
 				// 经过实践发现，其实我们在滑动listView的列表的时候有时候更渴望有滑动就ok
-				if (Math.abs(endX - pointX) > 50) {
+				// 只允许从右向左滑
+				if (endX - pointX < -50) {
 					// 获取到ListView第一个可见条目的position
 					int firstVisiblePosition = listView.getFirstVisiblePosition();
 
@@ -181,11 +182,11 @@ public class MainActivity extends SherlockActivity {
 
 						@Override
 						public void onClick(View v) {
+							deleteRecord(listDatas.get(position));
 							listDatas.remove(position);
 							adapter.notifyDataSetChanged();
 						}
 					});
-
 				}
 				break;
 
