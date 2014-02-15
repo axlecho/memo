@@ -6,13 +6,14 @@ import java.io.IOException;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -89,6 +90,8 @@ public class NewItemActivity extends SherlockActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_newitem);
 
+		//TODO 适应横竖 
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		initPaint();
 		initImageView();
 		initImageSurfaceView();
@@ -143,33 +146,44 @@ public class NewItemActivity extends SherlockActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == Const.CAMERARESULT) {
-			Bitmap camorabitmap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory()
+			Bitmap camerabitmap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory()
 					+ "/workupload.jpg");
-			if (null != camorabitmap) {
+
+			if (null != camerabitmap) {
 				// 下面这两句是对图片按照一定的比例缩放，这样就可以完美地显示出来。
-				int scale = reckonThumbnail(camorabitmap.getWidth(), camorabitmap.getHeight(), canvasImage.getWidth(),
-						canvasImage.getHeight());
-				Bitmap b = PicZoom(camorabitmap, camorabitmap.getWidth() / scale, camorabitmap.getHeight() / scale);
-				// Rect r = new Rect(0, 0, canvas.getWidth(),
-				// canvas.getHeight());
-				// canvas.drawBitmap(b, null, r, null);
+
+				int oldWidth = camerabitmap.getWidth();
+				int oldHeight = camerabitmap.getHeight();
+				int newWidth = canvasImage.getWidth();
+				int newHeight = canvasImage.getHeight();
+
+				boolean flagRotate = false;
+				int scale = 1;
+				if ((oldWidth - oldHeight) * (newWidth - newHeight) < 0) {
+					flagRotate = true;
+					scale = oldWidth / newHeight;
+				} else {
+					scale = oldWidth / newWidth;
+				}
+
+				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale,
+						flagRotate);
 				canvasImage.drawBitmap(b, 0, 0, null);
-				// imageView.setImageBitmap(b);
+
+				File f = new File(Environment.getExternalStorageDirectory() + "/workupload.jpg");
+				f.delete();
 			}
+
 		}
 	}
 
-	public static int reckonThumbnail(int oldWidth, int oldHeight, int newWidth, int newHeight) {
-
-		return oldHeight / newWidth;
-	}
-
-	public static Bitmap PicZoom(Bitmap bmp, int width, int height) {
+	public static Bitmap PicZoom(Bitmap bmp, int width, int height, boolean rotate) {
 		int bmpWidth = bmp.getWidth();
 		int bmpHeght = bmp.getHeight();
 		Matrix matrix = new Matrix();
 		matrix.postScale((float) width / bmpWidth, (float) height / bmpHeght);
-		matrix.postRotate(90);
+		if (rotate)
+			matrix.postRotate(90);
 		return Bitmap.createBitmap(bmp, 0, 0, bmpWidth, bmpHeght, matrix, true);
 	}
 
@@ -422,6 +436,15 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 			popupColor.dismiss();
+		}
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+
+		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+		} else {
 		}
 	}
 }

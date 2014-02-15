@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/bgwhite"
     android:orientation="horizontal" >
 
     <LinearLayout
@@ -49,9 +50,17 @@
             android:textColor="#000000"
             android:textSize="12sp" />
 
+        <TextView
+            android:id="@+id/bottom_mask"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/bgwhite"
+            android:visibility="gone" >
+        </TextView>
+
         <Button
             android:id="@+id/btn_del"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/button_style"
@@ -61,22 +70,22 @@
             android:paddingTop="2dp"
             android:text="@string/btn_delete"
             android:textColor="#cecece"
-            android:textSize="32sp"
+            android:textSize="16sp"
             android:visibility="gone" />
 
-        <TextView
+        <Button
             android:id="@+id/btn_del_mask"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="#fff0f0f0"
-            android:paddingBottom="2dp"
+            android:background="@color/bgwhite"
+            android:paddingBottom="6dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:paddingTop="2dp"
+            android:paddingTop="6dp"
             android:text="@string/btn_delete"
-            android:textColor="#fff0f0f0"
-            android:textSize="32sp"
+            android:textColor="@color/bgwhite"
+            android:textSize="16sp"
             android:visibility="gone" />
     </FrameLayout>
 

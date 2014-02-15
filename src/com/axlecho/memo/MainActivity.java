@@ -58,6 +58,8 @@ public class MainActivity extends SherlockActivity {
 
 		});
 		setContentView(listView);
+
+		listView.setBackgroundColor(this.getResources().getColor(R.color.bgwhite));
 	}
 
 	@Override
@@ -144,7 +146,7 @@ public class MainActivity extends SherlockActivity {
 		private int endY = -1;
 		private int newpos = -1;
 		private Button curDel_btn;
-
+		private TextView curMask;
 		private Context parentContext;
 
 		public ListViewEx(Context context) {
@@ -164,6 +166,9 @@ public class MainActivity extends SherlockActivity {
 				if (curDel_btn != null) {
 					curDel_btn.setVisibility(View.GONE);
 				}
+				if (curMask != null) {
+					curMask.setVisibility(View.GONE);
+				}
 				break;
 			case MotionEvent.ACTION_MOVE:
 
@@ -180,15 +185,21 @@ public class MainActivity extends SherlockActivity {
 					int firstVisiblePosition = listView.getFirstVisiblePosition();
 
 					View view = listView.getChildAt(position - firstVisiblePosition);
+
+					if (view == null)
+						break;
 					Button delbtn = (Button) view.findViewById(R.id.btn_del);
 					TextView delbtnMask = (TextView) view.findViewById(R.id.btn_del_mask);
+					TextView bottomMask = (TextView) view.findViewById(R.id.bottom_mask);
 
+					bottomMask.setVisibility(View.VISIBLE);
 					delbtn.setVisibility(View.VISIBLE);
 					delbtnMask.setVisibility(View.VISIBLE);
 					delbtnMask.startAnimation(AnimationUtils.loadAnimation(parentContext, R.anim.delete_show));
 					delbtnMask.setVisibility(View.INVISIBLE);
 
 					curDel_btn = delbtn;
+					curMask = bottomMask;
 					delbtn.setOnClickListener(new View.OnClickListener() {
 
 						@Override
