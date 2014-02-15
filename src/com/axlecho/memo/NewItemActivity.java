@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -21,6 +22,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -61,6 +64,9 @@ public class NewItemActivity extends SherlockActivity {
 	private Button btnSelectBlue;
 	private Button btnSelectRed;
 	private Button btnSelectYellow;
+	private Button btnSelectBlack;
+	private Button btnSelectIvory;
+	private Button btnSelectPurple;
 
 	private Button btnSelectSize;
 	private View popupSizeView;
@@ -76,6 +82,7 @@ public class NewItemActivity extends SherlockActivity {
 	private Button btnEraser;
 
 	private Paint paint;
+	private TextView noteView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +106,8 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 		});
+
+		noteView = (TextView) findViewById(R.id.view_note);
 	}
 
 	@Override
@@ -293,6 +302,7 @@ public class NewItemActivity extends SherlockActivity {
 	}
 
 	private void initPopupColor() {
+		ColorSelectOnClickListener csOnClickListener = new ColorSelectOnClickListener(this.getResources());
 		popupColorView = getLayoutInflater().inflate(R.layout.menu_selectcolor, null, true);
 		popupColor = new PopupWindow(popupColorView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
 		popupColor.setBackgroundDrawable(new BitmapDrawable());
@@ -303,52 +313,17 @@ public class NewItemActivity extends SherlockActivity {
 		btnSelectBlue = (Button) popupColorView.findViewById(R.id.btn_select_blue);
 		btnSelectRed = (Button) popupColorView.findViewById(R.id.btn_select_red);
 		btnSelectYellow = (Button) popupColorView.findViewById(R.id.btn_select_yellow);
+		btnSelectBlack = (Button) popupColorView.findViewById(R.id.btn_select_black);
+		btnSelectIvory = (Button) popupColorView.findViewById(R.id.btn_select_ivory);
+		btnSelectPurple = (Button) popupColorView.findViewById(R.id.btn_select_purple);
 
-		btnSelectGreen.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				paint.setAlpha(255);
-				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-				paint.setColor(Color.GREEN);
-				popupColor.dismiss();
-
-			}
-
-		});
-		btnSelectBlue.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				paint.setAlpha(255);
-				paint.setColor(Color.BLUE);
-				popupColor.dismiss();
-				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-			}
-
-		});
-		btnSelectRed.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				paint.setAlpha(255);
-				paint.setColor(Color.RED);
-				popupColor.dismiss();
-				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-			}
-
-		});
-		btnSelectYellow.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				paint.setAlpha(255);
-				paint.setColor(Color.YELLOW);
-				popupColor.dismiss();
-				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-			}
-
-		});
+		btnSelectGreen.setOnClickListener(csOnClickListener);
+		btnSelectBlue.setOnClickListener(csOnClickListener);
+		btnSelectRed.setOnClickListener(csOnClickListener);
+		btnSelectYellow.setOnClickListener(csOnClickListener);
+		btnSelectBlack.setOnClickListener(csOnClickListener);
+		btnSelectIvory.setOnClickListener(csOnClickListener);
+		btnSelectPurple.setOnClickListener(csOnClickListener);
 
 		btnSelectColor = (Button) findViewById(R.id.btn_selectcolor);
 		btnSelectColor.setOnClickListener(new OnClickListener() {
@@ -385,6 +360,68 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 		});
+		editAddTextView.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void afterTextChanged(Editable ed) {
+				noteView.setText(ed.toString());
+				noteView.setVisibility(View.VISIBLE);
+
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+				noteView.setVisibility(View.INVISIBLE);
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+				// TODO Auto-generated method stub
+
+			}
+
+		});
 	}
 
+	class ColorSelectOnClickListener implements OnClickListener {
+		private Resources r;
+
+		public ColorSelectOnClickListener(Resources r) {
+			this.r = r;
+		}
+
+		@Override
+		public void onClick(View v) {
+			paint.setAlpha(255);
+			paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+			switch (v.getId()) {
+			case R.id.btn_select_green:
+				paint.setColor(r.getColor(R.color.green));
+				break;
+			case R.id.btn_select_black:
+				paint.setColor(r.getColor(R.color.black));
+				break;
+			case R.id.btn_select_blue:
+				paint.setColor(r.getColor(R.color.blue));
+				break;
+			case R.id.btn_select_ivory:
+				paint.setColor(r.getColor(R.color.ivory));
+				break;
+			case R.id.btn_select_purple:
+				paint.setColor(r.getColor(R.color.purple));
+				break;
+			case R.id.btn_select_red:
+				paint.setColor(r.getColor(R.color.red));
+				break;
+			case R.id.btn_select_yellow:
+				paint.setColor(r.getColor(R.color.yellow));
+				break;
+			default:
+				break;
+			}
+
+			popupColor.dismiss();
+		}
+	}
 }

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="horizontal" >
 
     <Button
-        android:id="@+id/btn_select_green"
+        android:id="@+id/btn_select_purple"
         android:layout_width="40dip"
         android:layout_height="40dip"
         android:layout_marginRight="10dip"
         android:layout_weight="1"
-        android:background="@color/green" />
+        android:background="@color/purple" />
 
     <Button
         android:id="@+id/btn_select_blue"
@@ -19,6 +19,14 @@
         android:layout_marginRight="10dip"
         android:layout_weight="1"
         android:background="@color/blue" />
+
+    <Button
+        android:id="@+id/btn_select_green"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_marginRight="10dip"
+        android:layout_weight="1"
+        android:background="@color/green" />
 
     <Button
         android:id="@+id/btn_select_yellow"
@@ -35,5 +43,21 @@
         android:layout_marginRight="10dip"
         android:layout_weight="1"
         android:background="@color/red" />
+
+    <Button
+        android:id="@+id/btn_select_ivory"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_marginRight="10dip"
+        android:layout_weight="1"
+        android:background="@color/ivory" />
+
+    <Button
+        android:id="@+id/btn_select_black"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_marginRight="10dip"
+        android:layout_weight="1"
+        android:background="@color/black" />
 
 </LinearLayout>

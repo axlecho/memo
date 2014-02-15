@@ -16,4 +16,5 @@
 	<string name="add_text">添加文字</string>
 	<string name="btn_eraser">橡皮擦</string>
 	<string name="label_show">记录</string>
+	<string name="btn_delete">删除</string>
 </resources>

@@ -11,12 +11,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.PaintDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -50,7 +52,7 @@ public class MainActivity extends SherlockActivity {
 				Map<String, Object> m = listDatas.get(pos);
 				Log.i("axlecho", (String) m.get("img"));
 				intent.putExtra("pic_path", (String) m.get("img"));
-
+				intent.putExtra("note", (String) m.get("note"));
 				startActivity(intent);
 			}
 
@@ -143,9 +145,12 @@ public class MainActivity extends SherlockActivity {
 		private int newpos = -1;
 		private Button curDel_btn;
 
+		private Context parentContext;
+
 		public ListViewEx(Context context) {
 			super(context);
 			setOnTouchListener(this);
+			parentContext = context;
 		}
 
 		@Override
@@ -176,7 +181,13 @@ public class MainActivity extends SherlockActivity {
 
 					View view = listView.getChildAt(position - firstVisiblePosition);
 					Button delbtn = (Button) view.findViewById(R.id.btn_del);
+					TextView delbtnMask = (TextView) view.findViewById(R.id.btn_del_mask);
+
 					delbtn.setVisibility(View.VISIBLE);
+					delbtnMask.setVisibility(View.VISIBLE);
+					delbtnMask.startAnimation(AnimationUtils.loadAnimation(parentContext, R.anim.delete_show));
+					delbtnMask.setVisibility(View.INVISIBLE);
+
 					curDel_btn = delbtn;
 					delbtn.setOnClickListener(new View.OnClickListener() {
 
@@ -195,7 +206,6 @@ public class MainActivity extends SherlockActivity {
 			}
 			return false;
 		}
-
 	}
 
 	private class ListAdapter extends BaseAdapter {
@@ -217,13 +227,17 @@ public class MainActivity extends SherlockActivity {
 
 		@Override
 		public View getView(final int pos, View convertView, ViewGroup parent) {
+			String time = (String) listDatas.get(pos).get("time");
+			String dates[] = time.split(" ");
 			View view = getLayoutInflater().inflate(R.layout.list_item_view, null);
 			TextView noteView = (TextView) view.findViewById(R.id.note);
 			TextView timeView = (TextView) view.findViewById(R.id.time);
+			TextView dateView = (TextView) view.findViewById(R.id.date);
 			ImageView imageView = (ImageView) view.findViewById(R.id.img);
 
 			noteView.setText((String) listDatas.get(pos).get("note"));
-			timeView.setText((String) listDatas.get(pos).get("time"));
+			dateView.setText(dates[0]);
+			timeView.setText(dates[1]);
 			imageView.setImageBitmap(BitmapFactory.decodeFile((String) listDatas.get(pos).get("img")));
 
 			return view;
