@@ -16,6 +16,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.BitmapDrawable;
@@ -55,8 +57,8 @@ public class NewItemActivity extends SherlockActivity {
 	private ImageView imageSurfaceView;
 	private Canvas canvasSurface;
 
-	private int old_x;
-	private int old_y;
+	private float old_x;
+	private float old_y;
 
 	private Button btnSelectColor;
 	private View popupColorView;
@@ -84,13 +86,14 @@ public class NewItemActivity extends SherlockActivity {
 
 	private Paint paint;
 	private TextView noteView;
+	private Path tmpPath;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_newitem);
 
-		//TODO 适应横竖 
+		// TODO 适应横竖
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		initPaint();
 		initImageView();
@@ -225,6 +228,7 @@ public class NewItemActivity extends SherlockActivity {
 		paint.setColor(Const.DEFAULTCOLOR);
 		paint.setStrokeWidth(Const.DEFAULTPENSIZE);
 		paint.setAntiAlias(true);
+		paint.setStyle(Style.STROKE);
 	}
 
 	private void initImageView() {
@@ -258,13 +262,34 @@ public class NewItemActivity extends SherlockActivity {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent me) {
 				if (me.getAction() == MotionEvent.ACTION_DOWN) {
-					old_x = (int) me.getX();
-					old_y = (int) me.getY();
+					old_x = me.getX();
+					old_y = me.getY();
+					tmpPath = new Path();
+					tmpPath.moveTo(me.getX(), me.getY());
 				} else if (me.getAction() == MotionEvent.ACTION_MOVE) {
-					canvasSurface.drawLine(old_x, old_y, me.getX(), me.getY(), paint);
+					if (tmpPath != null)
+						canvasSurface.drawPath(tmpPath, paint);
 
-					old_x = (int) me.getX();
-					old_y = (int) me.getY();
+					final float dx = Math.abs(me.getX() - old_x);
+					final float dy = Math.abs(me.getY() - old_y);
+
+					// 两点之间的距离大于等于3时，生成贝塞尔绘制曲线
+					if (dx >= 3 || dy >= 3) {
+						// 设置贝塞尔曲线的操作点为起点和终点的一半
+						float cX = (me.getX() + old_x) / 2;
+						float cY = (me.getY() + old_y) / 2;
+
+						// 二次贝塞尔，实现平滑曲线；previousX, previousY为操作点，cX, cY为终点
+						tmpPath.quadTo(old_x, old_y, cX, cY);
+
+					}
+					old_x = me.getX();
+					old_y = me.getY();
+
+					imageSurfaceView.invalidate();
+				} else if (me.getAction() == MotionEvent.ACTION_UP) {
+					tmpPath.lineTo(me.getX(), me.getY());
+					canvasSurface.drawPath(tmpPath, paint);
 					imageSurfaceView.invalidate();
 				}
 				return true;
