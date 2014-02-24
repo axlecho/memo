@@ -19,56 +19,64 @@
     </ImageView>
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="#0fffffff"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/btn_selectcolor"
-            android:layout_width="0px"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:text="@string/select_color"
-            android:textSize="10sp" >
-        </Button>
-
-        <Button
-            android:id="@+id/btn_selectsize"
-            android:layout_width="0px"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:text="@string/select_size"
-            android:textSize="10sp" >
-        </Button>
-
-        <Button
-            android:id="@+id/btn_addtext"
-            android:layout_width="0px"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:text="@string/add_text"
-            android:textSize="10sp" >
-        </Button>
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:background="#80ffffff"
+        android:orientation="vertical" >
 
         <Button
             android:id="@+id/btn_eraser"
-            android:layout_width="0px"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/btn_eraser"
-            android:textSize="10sp" >
+            android:textSize="12sp" >
         </Button>
 
         <Button
             android:id="@+id/btn_pen"
-            android:layout_width="0px"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/btn_pen"
-            android:textSize="10sp" >
+            android:textSize="12sp" >
         </Button>
+
+        <Button
+            android:id="@+id/btn_selectcolor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_color"
+            android:textSize="12sp" >
+        </Button>
+
+        <Button
+            android:id="@+id/btn_selectsize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_size"
+            android:textSize="12sp" >
+        </Button>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#00ffffff"
+        android:gravity="right"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/ic_menu_save" >
+        </Button>
+
+        <Button
+            android:id="@+id/btn_del_content"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:background="@android:drawable/ic_menu_delete" />
     </LinearLayout>
 
     <TextView
@@ -79,5 +87,11 @@
         android:gravity="center"
         android:textSize="16sp"
         android:visibility="invisible" />
+
+    <EditText
+        android:id="@+id/view_addnote"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 </FrameLayout>

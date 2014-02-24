@@ -87,6 +87,7 @@
             android:textColor="@color/bgwhite"
             android:textSize="16sp"
             android:visibility="gone" />
+
     </FrameLayout>
 
 </LinearLayout>
