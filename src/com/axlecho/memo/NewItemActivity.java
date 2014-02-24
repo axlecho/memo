@@ -70,17 +70,20 @@ public class NewItemActivity extends SherlockActivity {
 	private Button btnSelectBlack;
 	private Button btnSelectIvory;
 	private Button btnSelectPurple;
+	private int popupColorHeight;
 
 	private Button btnSelectSize;
 	private View popupSizeView;
 	private PopupWindow popupSize;
 	private SeekBar seekbarSize;
 	private TextView penSizeView;
+	private int popupSizeHeight;
 
 	private Button btnAddText;
 	private View popupAddTextView;
 	private PopupWindow popupAddWindow;
 	private EditText editAddTextView;
+	private int popupTextHeight;
 
 	private Button btnEraser;
 
@@ -312,6 +315,11 @@ public class NewItemActivity extends SherlockActivity {
 		popupSize.setBackgroundDrawable(new BitmapDrawable());
 		popupSize.setOutsideTouchable(true);
 
+		int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		popupSizeView.measure(w, h);
+		popupSizeHeight = popupSizeView.getMeasuredHeight();
+
 		penSizeView = (TextView) popupSizeView.findViewById(R.id.view_penSize);
 		seekbarSize = (SeekBar) popupSizeView.findViewById(R.id.seekbar_selectsize);
 		seekbarSize.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -342,7 +350,7 @@ public class NewItemActivity extends SherlockActivity {
 				if (popupSize.isShowing()) {
 					popupSize.dismiss();
 				} else {
-					popupSize.showAsDropDown(v);
+					popupSize.showAsDropDown(v, 0, -(v.getHeight() + popupSizeHeight));
 				}
 			}
 
@@ -356,6 +364,11 @@ public class NewItemActivity extends SherlockActivity {
 		popupColor.setBackgroundDrawable(new BitmapDrawable());
 		popupColor.setOutsideTouchable(true);
 		// popupColor.setAnimationStyle(R.style.PopupAnimation);
+
+		int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		popupColorView.measure(w, h);
+		popupColorHeight = popupColorView.getMeasuredHeight();
 
 		btnSelectGreen = (Button) popupColorView.findViewById(R.id.btn_select_green);
 		btnSelectBlue = (Button) popupColorView.findViewById(R.id.btn_select_blue);
@@ -381,7 +394,8 @@ public class NewItemActivity extends SherlockActivity {
 				if (popupColor.isShowing()) {
 					popupColor.dismiss();
 				} else {
-					popupColor.showAsDropDown(v);
+					popupColor.showAsDropDown(v, 0, -(v.getHeight() + popupColorHeight));
+
 				}
 			}
 
@@ -395,6 +409,11 @@ public class NewItemActivity extends SherlockActivity {
 		popupAddWindow.setOutsideTouchable(true);
 		editAddTextView = (EditText) popupAddTextView.findViewById(R.id.view_addnote);
 
+		int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		popupAddTextView.measure(w, h);
+		popupTextHeight = popupAddTextView.getMeasuredHeight();
+
 		btnAddText = (Button) findViewById(R.id.btn_addtext);
 		btnAddText.setOnClickListener(new OnClickListener() {
 
@@ -403,7 +422,7 @@ public class NewItemActivity extends SherlockActivity {
 				if (popupAddWindow.isShowing()) {
 					popupAddWindow.dismiss();
 				} else {
-					popupAddWindow.showAsDropDown(v);
+					popupAddWindow.showAsDropDown(v, 0, -(v.getHeight() + popupTextHeight));
 				}
 			}
 
@@ -481,4 +500,5 @@ public class NewItemActivity extends SherlockActivity {
 		} else {
 		}
 	}
+
 }
