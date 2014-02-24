@@ -88,6 +88,8 @@ public class NewItemActivity extends SherlockActivity {
 	private TextView noteView;
 	private Path tmpPath;
 
+	private Paint bgPaint;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -224,11 +226,18 @@ public class NewItemActivity extends SherlockActivity {
 	}
 
 	private void initPaint() {
+
 		paint = new Paint();
 		paint.setColor(Const.DEFAULTCOLOR);
 		paint.setStrokeWidth(Const.DEFAULTPENSIZE);
 		paint.setAntiAlias(true);
 		paint.setStyle(Style.STROKE);
+
+		bgPaint = new Paint();
+		bgPaint.setColor(Const.DEFAULTCOLOR);
+		bgPaint.setStrokeWidth(Const.DEFAULTPENSIZE + 4);
+		bgPaint.setAntiAlias(true);
+		bgPaint.setStyle(Style.STROKE);
 	}
 
 	private void initImageView() {
