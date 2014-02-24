@@ -86,6 +86,7 @@ public class NewItemActivity extends SherlockActivity {
 	private int popupTextHeight;
 
 	private Button btnEraser;
+	private Button btnPen;
 
 	private Paint paint;
 	private TextView noteView;
@@ -114,9 +115,26 @@ public class NewItemActivity extends SherlockActivity {
 			public void onClick(View arg0) {
 				paint.setAlpha(0);
 				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+				btnSelectColor.setVisibility(View.GONE);
+				btnEraser.setVisibility(View.GONE);
+				btnPen.setVisibility(View.VISIBLE);
 			}
 
 		});
+
+		btnPen = (Button) findViewById(R.id.btn_pen);
+		btnPen.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				paint.setAlpha(255);
+				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+				btnSelectColor.setVisibility(View.VISIBLE);
+				btnEraser.setVisibility(View.VISIBLE);
+				btnPen.setVisibility(View.GONE);
+			}
+		});
+		btnPen.setVisibility(View.GONE);
 
 		noteView = (TextView) findViewById(R.id.view_note);
 	}

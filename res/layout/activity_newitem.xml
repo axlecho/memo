@@ -31,7 +31,7 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:text="@string/select_color"
-            android:textSize="8sp" >
+            android:textSize="10sp" >
         </Button>
 
         <Button
@@ -40,7 +40,7 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:text="@string/select_size"
-            android:textSize="8sp" >
+            android:textSize="10sp" >
         </Button>
 
         <Button
@@ -49,7 +49,7 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:text="@string/add_text"
-            android:textSize="8sp" >
+            android:textSize="10sp" >
         </Button>
 
         <Button
@@ -58,7 +58,16 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/btn_eraser"
-            android:textSize="8sp" >
+            android:textSize="10sp" >
+        </Button>
+
+        <Button
+            android:id="@+id/btn_pen"
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/btn_pen"
+            android:textSize="10sp" >
         </Button>
     </LinearLayout>
 
