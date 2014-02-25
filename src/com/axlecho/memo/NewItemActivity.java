@@ -544,4 +544,5 @@ public class NewItemActivity extends SherlockActivity {
 		}
 	}
 
+
 }

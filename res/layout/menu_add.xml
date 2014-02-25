@@ -9,14 +9,14 @@
         android:id="@+id/btn_addtext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/add_text" >
+        android:background="@drawable/btnstyle_addtext" >
     </Button>
 
     <Button
         android:id="@+id/btn_addpic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/add_photo" >
+        android:background="@drawable/btnstyle_addpic" >
     </Button>
 
 </LinearLayout>
