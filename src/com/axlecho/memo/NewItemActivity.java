@@ -159,7 +159,7 @@ public class NewItemActivity extends SherlockActivity {
 				popupAdd.dismiss();
 			} else {
 				View v = getWindow().findViewById(Window.ID_ANDROID_CONTENT);
-				popupAdd.showAsDropDown(v, 0,-v.getHeight());
+				popupAdd.showAsDropDown(v, 0, -v.getHeight());
 			}
 			break;
 
@@ -194,8 +194,7 @@ public class NewItemActivity extends SherlockActivity {
 			destDir.mkdirs();
 		}
 		String note = editAddTextView.getText().toString();
-		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data"
-				+ System.currentTimeMillis() + ".png";
+		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data" + System.currentTimeMillis() + ".png";
 		String voicePath = "";
 		cm.saveToPath(picPath);
 
@@ -262,8 +261,7 @@ public class NewItemActivity extends SherlockActivity {
 				@Override
 				public void onGlobalLayout() {
 					imageSurfaceView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(),
-							Config.ARGB_8888);
+					btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(), Config.ARGB_8888);
 					imageSurfaceView.setImageBitmap(btmSurface);
 					canvasSurface = new Canvas(btmSurface);
 				}
@@ -322,8 +320,7 @@ public class NewItemActivity extends SherlockActivity {
 				} else {
 					scale = oldWidth / newWidth;
 				}
-				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale,
-						flagRotate);
+				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale, flagRotate);
 				canvasImage.drawBitmap(b, 0, 0, null);
 
 				File f = new File(Environment.getExternalStorageDirectory() + "/workupload.jpg");
@@ -387,9 +384,11 @@ public class NewItemActivity extends SherlockActivity {
 				public void onClick(View arg0) {
 					paint.setAlpha(0);
 					paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-					btnSelectColor.setVisibility(View.GONE);
-					btnEraser.setVisibility(View.GONE);
-					btnPen.setVisibility(View.VISIBLE);
+					// btnSelectColor.setVisibility(View.GONE);
+					// btnEraser.setVisibility(View.GONE);
+					// btnPen.setVisibility(View.VISIBLE);
+					btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.pen));
+					btnEraser.setBackgroundDrawable(getResources().getDrawable(R.drawable.eraserpress));
 				}
 
 			});
@@ -400,13 +399,16 @@ public class NewItemActivity extends SherlockActivity {
 				public void onClick(View arg0) {
 					paint.setAlpha(255);
 					paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-					btnSelectColor.setVisibility(View.VISIBLE);
-					btnEraser.setVisibility(View.VISIBLE);
-					btnPen.setVisibility(View.GONE);
+					// btnSelectColor.setVisibility(View.VISIBLE);
+					// btnEraser.setVisibility(View.VISIBLE);
+					// btnPen.setVisibility(View.GONE);
+					btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.penpress));
+					btnEraser.setBackgroundDrawable(getResources().getDrawable(R.drawable.eraser));
 				}
 			});
 
-			btnPen.setVisibility(View.GONE);
+			// btnPen.setVisibility(View.GONE);
+			btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.penpress));
 		}
 
 		private void initPaint() {
@@ -416,6 +418,9 @@ public class NewItemActivity extends SherlockActivity {
 			paint.setAntiAlias(true);
 			paint.setStyle(Style.STROKE);
 		}
+
+		private int popupSizeHeight = -1;
+		private int popupColorHeight = -1;
 
 		private void initPopupSize(Activity parent) {
 			popupSizeView = parent.getLayoutInflater().inflate(R.layout.menu_selectsize, null, true);
@@ -445,6 +450,11 @@ public class NewItemActivity extends SherlockActivity {
 
 			});
 
+			int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+			int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+			popupSizeView.measure(w, h);
+			popupSizeHeight = popupSizeView.getMeasuredHeight();
+
 			btnSelectSize = (Button) findViewById(R.id.btn_selectsize);
 			btnSelectSize.setOnClickListener(new OnClickListener() {
 
@@ -453,7 +463,7 @@ public class NewItemActivity extends SherlockActivity {
 					if (popupSize.isShowing()) {
 						popupSize.dismiss();
 					} else {
-						popupSize.showAsDropDown(v);
+						popupSize.showAsDropDown(v, 0, -(v.getHeight() + popupSizeHeight));
 					}
 				}
 
@@ -482,6 +492,11 @@ public class NewItemActivity extends SherlockActivity {
 			btnSelectIvory.setOnClickListener(csOnClickListener);
 			btnSelectPurple.setOnClickListener(csOnClickListener);
 
+			int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+			int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+			popupColorView.measure(w, h);
+			popupColorHeight = popupColorView.getMeasuredHeight();
+
 			btnSelectColor = (Button) findViewById(R.id.btn_selectcolor);
 			btnSelectColor.setOnClickListener(new OnClickListener() {
 
@@ -490,7 +505,7 @@ public class NewItemActivity extends SherlockActivity {
 					if (popupColor.isShowing()) {
 						popupColor.dismiss();
 					} else {
-						popupColor.showAsDropDown(v);
+						popupColor.showAsDropDown(v, 0, -(v.getHeight() + popupColorHeight + 5));
 
 					}
 				}
@@ -543,6 +558,5 @@ public class NewItemActivity extends SherlockActivity {
 			return paint;
 		}
 	}
-
 
 }
