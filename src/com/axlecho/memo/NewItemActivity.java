@@ -143,6 +143,16 @@ public class NewItemActivity extends SherlockActivity {
 
 		tm = new ToolsManager(this);
 		cm = new CanvasManager(this, tm.getPaint());
+
+		btnDel = (Button) findViewById(R.id.btn_del_content);
+		btnDel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				cm.clearSurface();
+			}
+
+		});
 	}
 
 	@Override
@@ -218,6 +228,7 @@ public class NewItemActivity extends SherlockActivity {
 		}
 	}
 
+
 	class CanvasManager {
 
 		private Bitmap btmImage;
@@ -233,6 +244,8 @@ public class NewItemActivity extends SherlockActivity {
 		private float old_y;
 
 		private Paint paint;
+
+		
 
 		public CanvasManager(Activity parent, Paint paint) {
 			this.paint = paint;
@@ -321,6 +334,7 @@ public class NewItemActivity extends SherlockActivity {
 					scale = oldWidth / newWidth;
 				}
 				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale, flagRotate);
+
 				canvasImage.drawBitmap(b, 0, 0, null);
 
 				File f = new File(Environment.getExternalStorageDirectory() + "/workupload.jpg");
@@ -339,6 +353,23 @@ public class NewItemActivity extends SherlockActivity {
 			btmImage.compress(Bitmap.CompressFormat.PNG, 100, fOut);
 			fOut.flush();
 			fOut.close();
+		}
+
+		public void clearSurface() {
+		
+			Paint canvasClear = new Paint();
+			canvasClear.setAlpha(0);
+			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+			canvasSurface.drawRect(0, 0, canvasSurface.getWidth(), canvasSurface.getHeight(), canvasClear);
+			imageSurfaceView.invalidate();
+		}
+
+		public void clearBg() {
+			Paint canvasClear = new Paint();
+			canvasClear.setAlpha(0);
+			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+			canvasImage.drawRect(0, 0, canvasImage.getWidth(), canvasImage.getHeight(), canvasClear);
+			imageView.invalidate();
 		}
 	}
 
