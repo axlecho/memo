@@ -143,6 +143,16 @@ public class NewItemActivity extends SherlockActivity {
 
 		tm = new ToolsManager(this);
 		cm = new CanvasManager(this, tm.getPaint());
+
+		btnDel = (Button) findViewById(R.id.btn_del_content);
+		btnDel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				cm.clearSurface();
+			}
+
+		});
 	}
 
 	@Override
@@ -218,6 +228,54 @@ public class NewItemActivity extends SherlockActivity {
 		}
 	}
 
+	// TODO 删除的动画
+	class AnimotionManager {
+		private Bitmap btmImage;
+		private ImageView imageView;
+		private Canvas canvasImage;
+
+		public AnimotionManager(Activity parent) {
+			initImageView(parent);
+		}
+
+		private void initImageView(Activity parent) {
+			imageView = (ImageView) parent.findViewById(R.id.view_image_del);
+			ViewTreeObserver vto = imageView.getViewTreeObserver();
+			vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+				@Override
+				public void onGlobalLayout() {
+					imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					btmImage = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Config.ARGB_8888);
+					imageView.setImageBitmap(btmImage);
+					canvasImage = new Canvas(btmImage);
+				}
+			});
+		}
+
+		public void delAnimotion(Bitmap srcBtm) {
+
+			int height = srcBtm.getHeight();
+			int width = srcBtm.getWidth();
+
+			float[] src = new float[] { 0, 0, // left-top
+					0, height, // left-bottom
+					width, height,// right-bottom
+					width, 0,// right-top
+			};
+
+			float[] dst = new float[] { 0, 0,// left-top
+					width - btnDel.getWidth(), height,// left-bottom
+					width - 5, height,// right-bottom
+					width, 0,// right-top
+			};
+
+			Matrix mMatrix = new Matrix();
+			mMatrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
+			canvasImage.drawBitmap(srcBtm, mMatrix, null);
+			imageView.invalidate();
+		}
+	}
+
 	class CanvasManager {
 
 		private Bitmap btmImage;
@@ -234,10 +292,13 @@ public class NewItemActivity extends SherlockActivity {
 
 		private Paint paint;
 
+		private AnimotionManager am;
+
 		public CanvasManager(Activity parent, Paint paint) {
 			this.paint = paint;
 			initImageView(parent);
 			initImageSurfaceView(parent);
+			am = new AnimotionManager(parent);
 		}
 
 		public void initImageView(Activity parent) {
@@ -321,6 +382,7 @@ public class NewItemActivity extends SherlockActivity {
 					scale = oldWidth / newWidth;
 				}
 				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale, flagRotate);
+
 				canvasImage.drawBitmap(b, 0, 0, null);
 
 				File f = new File(Environment.getExternalStorageDirectory() + "/workupload.jpg");
@@ -339,6 +401,23 @@ public class NewItemActivity extends SherlockActivity {
 			btmImage.compress(Bitmap.CompressFormat.PNG, 100, fOut);
 			fOut.flush();
 			fOut.close();
+		}
+
+		public void clearSurface() {
+			// am.delAnimotion(btmImage);
+			Paint canvasClear = new Paint();
+			canvasClear.setAlpha(0);
+			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+			canvasSurface.drawRect(0, 0, canvasSurface.getWidth(), canvasSurface.getHeight(), canvasClear);
+			imageSurfaceView.invalidate();
+		}
+
+		public void clearBg() {
+			Paint canvasClear = new Paint();
+			canvasClear.setAlpha(0);
+			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+			canvasImage.drawRect(0, 0, canvasImage.getWidth(), canvasImage.getHeight(), canvasClear);
+			imageView.invalidate();
 		}
 	}
 

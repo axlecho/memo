@@ -135,6 +135,7 @@ public class MainActivity extends SherlockActivity {
 		if (voice_file.exists() && voice_file.isFile()) {
 			voice_file.delete();
 		}
+		db.close();
 	}
 
 	private class ListViewEx extends ListView implements OnTouchListener {
