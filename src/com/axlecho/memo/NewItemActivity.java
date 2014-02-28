@@ -15,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
@@ -22,6 +23,7 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,7 +31,6 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -228,7 +229,6 @@ public class NewItemActivity extends SherlockActivity {
 		}
 	}
 
-
 	class CanvasManager {
 
 		private Bitmap btmImage;
@@ -244,8 +244,6 @@ public class NewItemActivity extends SherlockActivity {
 		private float old_y;
 
 		private Paint paint;
-
-		
 
 		public CanvasManager(Activity parent, Paint paint) {
 			this.paint = paint;
@@ -356,7 +354,7 @@ public class NewItemActivity extends SherlockActivity {
 		}
 
 		public void clearSurface() {
-		
+
 			Paint canvasClear = new Paint();
 			canvasClear.setAlpha(0);
 			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
@@ -370,6 +368,44 @@ public class NewItemActivity extends SherlockActivity {
 			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
 			canvasImage.drawRect(0, 0, canvasImage.getWidth(), canvasImage.getHeight(), canvasClear);
 			imageView.invalidate();
+		}
+	}
+
+	static class AnimationManager {
+
+		public static void setButtonBgAnimation(Button btn, int size) {
+			size = size + 1;
+			Drawable bgdrawable = btn.getBackground();
+			int w = bgdrawable.getIntrinsicWidth();
+			int h = bgdrawable.getIntrinsicHeight();
+			Bitmap bitmap = Bitmap.createBitmap(w, h, Config.ARGB_4444);
+
+			Paint paint = new Paint();
+			paint.setAntiAlias(true);
+			paint.setARGB(0xff, 0x22, 0x22, 0x22);
+			paint.setTextSize(8);
+			paint.setFakeBoldText(true);
+			paint.setShadowLayer(2, 1.532f, 1.285f, 0xFF222222);
+			Canvas canvas = new Canvas(bitmap);
+
+			bitmap.eraseColor(Color.WHITE);
+			canvas.drawText(String.valueOf(size), w / 2 + 3, h / 2 - 0.5f, paint);
+
+			float x = -1;
+			float y = -1;
+			if (size <= 5) {
+
+				x = w / 2.0f - 1;
+				y = h / 2.0f + 2;
+			} else {
+				x = w / 2.0f - 1 - (size - 5) * 0.707f;
+				y = h / 2.0f + 2 + (size - 5) * 0.707f;
+			}
+
+			canvas.drawCircle(x, y, size, paint);
+
+			BitmapDrawable bd = new BitmapDrawable(bitmap);
+			btn.setBackgroundDrawable(bd);
 		}
 	}
 
@@ -467,6 +503,7 @@ public class NewItemActivity extends SherlockActivity {
 				public void onProgressChanged(SeekBar arg0, int progress, boolean fromUser) {
 					penSizeView.setText("" + progress);
 					paint.setStrokeWidth(progress);
+					AnimationManager.setButtonBgAnimation(btnSelectSize, progress);
 				}
 
 				@Override
@@ -499,6 +536,8 @@ public class NewItemActivity extends SherlockActivity {
 				}
 
 			});
+			
+			AnimationManager.setButtonBgAnimation(btnSelectSize, seekbarSize.getProgress());
 		}
 
 		private void initPopupColor(Activity parent) {
