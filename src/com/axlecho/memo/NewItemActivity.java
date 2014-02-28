@@ -228,6 +228,53 @@ public class NewItemActivity extends SherlockActivity {
 		}
 	}
 
+	// TODO 删除的动画
+	class AnimotionManager {
+		private Bitmap btmImage;
+		private ImageView imageView;
+		private Canvas canvasImage;
+
+		public AnimotionManager(Activity parent) {
+			initImageView(parent);
+		}
+
+		private void initImageView(Activity parent) {
+			imageView = (ImageView) parent.findViewById(R.id.view_image_del);
+			ViewTreeObserver vto = imageView.getViewTreeObserver();
+			vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+				@Override
+				public void onGlobalLayout() {
+					imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					btmImage = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Config.ARGB_8888);
+					imageView.setImageBitmap(btmImage);
+					canvasImage = new Canvas(btmImage);
+				}
+			});
+		}
+
+		public void delAnimotion(Bitmap srcBtm) {
+
+			int height = srcBtm.getHeight();
+			int width = srcBtm.getWidth();
+
+			float[] src = new float[] { 0, 0, // left-top
+					0, height, // left-bottom
+					width, height,// right-bottom
+					width, 0,// right-top
+			};
+
+			float[] dst = new float[] { 0, 0,// left-top
+					width - btnDel.getWidth(), height,// left-bottom
+					width - 5, height,// right-bottom
+					width, 0,// right-top
+			};
+
+			Matrix mMatrix = new Matrix();
+			mMatrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
+			canvasImage.drawBitmap(srcBtm, mMatrix, null);
+			imageView.invalidate();
+		}
+	}
 
 	class CanvasManager {
 
@@ -245,12 +292,13 @@ public class NewItemActivity extends SherlockActivity {
 
 		private Paint paint;
 
-		
+		private AnimotionManager am;
 
 		public CanvasManager(Activity parent, Paint paint) {
 			this.paint = paint;
 			initImageView(parent);
 			initImageSurfaceView(parent);
+			am = new AnimotionManager(parent);
 		}
 
 		public void initImageView(Activity parent) {
@@ -356,7 +404,7 @@ public class NewItemActivity extends SherlockActivity {
 		}
 
 		public void clearSurface() {
-		
+			// am.delAnimotion(btmImage);
 			Paint canvasClear = new Paint();
 			canvasClear.setAlpha(0);
 			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
