@@ -33,6 +33,7 @@
         <activity
             android:name="com.axlecho.memo.NewItemActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:hardwareAccelerated="true"
             android:label="@string/label_newitem"
             android:theme="@style/Theme.Sherlock.Light" >
         </activity>

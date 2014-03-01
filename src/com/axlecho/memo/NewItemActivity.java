@@ -3,6 +3,8 @@ package com.axlecho.memo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -15,22 +17,29 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
@@ -204,7 +213,8 @@ public class NewItemActivity extends SherlockActivity {
 			destDir.mkdirs();
 		}
 		String note = editAddTextView.getText().toString();
-		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data" + System.currentTimeMillis() + ".png";
+		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data"
+				+ System.currentTimeMillis() + ".png";
 		String voicePath = "";
 		cm.saveToPath(picPath);
 
@@ -228,51 +238,138 @@ public class NewItemActivity extends SherlockActivity {
 		}
 	}
 
-	// TODO 删除的动画
 	class AnimotionManager {
-		private Bitmap btmImage;
-		private ImageView imageView;
-		private Canvas canvasImage;
+		private SurfaceView sfv;
+		private SurfaceHolder sfh;
+		private final int DELETEANIMOTION = 0;
+		private final int RESET = 1;
+		private int height;
+		private int width;
+		private float tarWidthIn;
+		private float tarWidthOut;
+		private Timer timer;
 
 		public AnimotionManager(Activity parent) {
 			initImageView(parent);
 		}
 
-		private void initImageView(Activity parent) {
-			imageView = (ImageView) parent.findViewById(R.id.view_image_del);
-			ViewTreeObserver vto = imageView.getViewTreeObserver();
-			vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-				@Override
-				public void onGlobalLayout() {
-					imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					btmImage = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Config.ARGB_8888);
-					imageView.setImageBitmap(btmImage);
-					canvasImage = new Canvas(btmImage);
-				}
-			});
+		public void setButtonBgAnimation(Button btn, int size) {
+			size = size + 1;
+			Drawable bgdrawable = btn.getBackground();
+			int w = bgdrawable.getIntrinsicWidth();
+			int h = bgdrawable.getIntrinsicHeight();
+			Bitmap bitmap = Bitmap.createBitmap(w, h, Config.ARGB_4444);
+
+			Paint paint = new Paint();
+			paint.setAntiAlias(true);
+			paint.setARGB(0xff, 0x22, 0x22, 0x22);
+			paint.setTextSize(8);
+			paint.setFakeBoldText(true);
+			paint.setShadowLayer(2, 1.532f, 1.285f, 0xFF222222);
+			Canvas canvas = new Canvas(bitmap);
+
+			bitmap.eraseColor(Color.WHITE);
+			canvas.drawText(String.valueOf(size), w / 2 + 3, h / 2 - 0.5f, paint);
+
+			float x = -1;
+			float y = -1;
+			if (size <= 5) {
+
+				x = w / 2.0f - 1;
+				y = h / 2.0f + 2;
+			} else {
+				x = w / 2.0f - 1 - (size - 5) * 0.707f;
+				y = h / 2.0f + 2 + (size - 5) * 0.707f;
+			}
+
+			canvas.drawCircle(x, y, size, paint);
+
+			BitmapDrawable bd = new BitmapDrawable(bitmap);
+			btn.setBackgroundDrawable(bd);
 		}
+
+		private void initImageView(Activity parent) {
+			sfv = (SurfaceView) parent.findViewById(R.id.view_image_del);
+			sfh = sfv.getHolder();
+			sfv.setZOrderOnTop(true);
+			sfh.setFormat(PixelFormat.TRANSLUCENT);
+		}
+
+		Handler handler = new Handler() {
+			private int animWidth = 0;
+			private int animHeigt = -1;
+
+			@Override
+			public void handleMessage(Message msg) {
+				super.handleMessage(msg);
+				switch (msg.what) {
+				case RESET:
+					animWidth = 0;
+					animHeigt = 0;
+					break;
+
+				case DELETEANIMOTION:
+
+					if (animWidth <= tarWidthIn) {
+						Canvas canvas = sfh.lockCanvas();
+
+						Paint canvasClear = new Paint();
+						canvasClear.setAlpha(0);
+						canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+						canvas.drawRect(0, 0, width, height, canvasClear);
+
+						Path tmpPath = new Path();
+						tmpPath.moveTo(0, 0);
+						tmpPath.cubicTo(0, height * 0.2f, animWidth, height * 0.6f, animWidth, height);
+						tmpPath.lineTo(tarWidthOut, height);
+						tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
+						tmpPath.lineTo(0, 0);
+
+						Paint paint = new Paint();
+						paint.setColor(0);
+						paint.setAlpha(20);
+						canvas.drawPath(tmpPath, paint);
+						sfh.unlockCanvasAndPost(canvas);
+						animWidth += 20;
+
+					} else {
+						if (animHeigt > height) {
+							timer.cancel();
+							return;
+						}
+						animHeigt += 18;
+						Rect r = new Rect(0, 0, width, animHeigt);
+						Canvas canvas = sfh.lockCanvas(r);
+						Paint canvasClear = new Paint();
+						canvasClear.setAlpha(0);
+						canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+						canvas.drawRect(0, 0, width, animHeigt, canvasClear);
+						sfh.unlockCanvasAndPost(canvas);
+					}
+
+					break;
+				default:
+					break;
+				}
+			}
+		};
 
 		public void delAnimotion(Bitmap srcBtm) {
 
-			int height = srcBtm.getHeight();
-			int width = srcBtm.getWidth();
+			height = srcBtm.getHeight() - btnDel.getHeight() - 10;
+			width = srcBtm.getWidth();
 
-			float[] src = new float[] { 0, 0, // left-top
-					0, height, // left-bottom
-					width, height,// right-bottom
-					width, 0,// right-top
-			};
+			tarWidthIn = width - btnDel.getWidth() - 5.0f;
+			tarWidthOut = width - 5.0f;
 
-			float[] dst = new float[] { 0, 0,// left-top
-					width - btnDel.getWidth(), height,// left-bottom
-					width - 5, height,// right-bottom
-					width, 0,// right-top
-			};
-
-			Matrix mMatrix = new Matrix();
-			mMatrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
-			canvasImage.drawBitmap(srcBtm, mMatrix, null);
-			imageView.invalidate();
+			handler.sendEmptyMessage(RESET);
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					handler.sendEmptyMessage(DELETEANIMOTION);
+				}
+			}, 0, 4);
 		}
 	}
 
@@ -291,7 +388,6 @@ public class NewItemActivity extends SherlockActivity {
 		private float old_y;
 
 		private Paint paint;
-
 		private AnimotionManager am;
 
 		public CanvasManager(Activity parent, Paint paint) {
@@ -322,7 +418,8 @@ public class NewItemActivity extends SherlockActivity {
 				@Override
 				public void onGlobalLayout() {
 					imageSurfaceView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(), Config.ARGB_8888);
+					btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(),
+							Config.ARGB_8888);
 					imageSurfaceView.setImageBitmap(btmSurface);
 					canvasSurface = new Canvas(btmSurface);
 				}
@@ -381,7 +478,8 @@ public class NewItemActivity extends SherlockActivity {
 				} else {
 					scale = oldWidth / newWidth;
 				}
-				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale, flagRotate);
+				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale,
+						flagRotate);
 
 				canvasImage.drawBitmap(b, 0, 0, null);
 
@@ -404,7 +502,9 @@ public class NewItemActivity extends SherlockActivity {
 		}
 
 		public void clearSurface() {
-			// am.delAnimotion(btmImage);
+
+			am.delAnimotion(btmSurface);
+
 			Paint canvasClear = new Paint();
 			canvasClear.setAlpha(0);
 			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
@@ -446,14 +546,17 @@ public class NewItemActivity extends SherlockActivity {
 
 		private ColorSelectOnClickListener csOnClickListener;
 
+		private AnimotionManager am;
+
 		public ToolsManager(Activity parent) {
 
 			csOnClickListener = new ColorSelectOnClickListener(parent.getResources());
-
+			am = new AnimotionManager(parent);
 			initPaint();
 			initPenEraser(parent);
 			initPopupSize(parent);
 			initPopupColor(parent);
+
 		}
 
 		private void initPenEraser(Activity parent) {
@@ -515,6 +618,7 @@ public class NewItemActivity extends SherlockActivity {
 				public void onProgressChanged(SeekBar arg0, int progress, boolean fromUser) {
 					penSizeView.setText("" + progress);
 					paint.setStrokeWidth(progress);
+					am.setButtonBgAnimation(btnSelectSize, progress);
 				}
 
 				@Override
@@ -547,6 +651,8 @@ public class NewItemActivity extends SherlockActivity {
 				}
 
 			});
+
+			am.setButtonBgAnimation(btnSelectSize, seekbarSize.getProgress());
 		}
 
 		private void initPopupColor(Activity parent) {
