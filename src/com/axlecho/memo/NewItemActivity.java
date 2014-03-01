@@ -249,6 +249,8 @@ public class NewItemActivity extends SherlockActivity {
 		private float tarWidthOut;
 		private Timer timer;
 
+		private Bitmap tarBtm;
+
 		public AnimotionManager(Activity parent) {
 			initImageView(parent);
 		}
@@ -329,6 +331,24 @@ public class NewItemActivity extends SherlockActivity {
 						paint.setColor(0);
 						paint.setAlpha(20);
 						canvas.drawPath(tmpPath, paint);
+
+						canvas.clipPath(tmpPath);
+
+						Matrix matrix = new Matrix();
+
+						float[] src = new float[] { 0, 0, // 左上
+								width, 0,// 右上
+								width, height,// 右下
+								0, height // 左下
+						};
+
+						float[] dst = new float[] { 0, 0, // 左上
+								width, 0,// 右上
+								tarWidthOut, height,// 右下
+								animWidth, height // 左下
+						};
+						matrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
+						canvas.drawBitmap(tarBtm, matrix, null);
 						sfh.unlockCanvasAndPost(canvas);
 						animWidth += 20;
 
@@ -355,7 +375,7 @@ public class NewItemActivity extends SherlockActivity {
 		};
 
 		public void delAnimotion(Bitmap srcBtm) {
-
+			tarBtm = srcBtm;
 			height = srcBtm.getHeight() - btnDel.getHeight() - 10;
 			width = srcBtm.getWidth();
 
@@ -369,7 +389,7 @@ public class NewItemActivity extends SherlockActivity {
 				public void run() {
 					handler.sendEmptyMessage(DELETEANIMOTION);
 				}
-			}, 0, 4);
+			}, 0, 5);
 		}
 	}
 
@@ -503,7 +523,8 @@ public class NewItemActivity extends SherlockActivity {
 
 		public void clearSurface() {
 
-			am.delAnimotion(btmSurface);
+			Bitmap bm = btmSurface.copy(Config.ARGB_8888, false);
+			am.delAnimotion(bm);
 
 			Paint canvasClear = new Paint();
 			canvasClear.setAlpha(0);
