@@ -16,7 +16,7 @@ public class Bezier {
 		_c2 = c2;
 	}
 
-	public List<Point> getPoints(int precision) {
+	public List<Point> getPoints(float precision) {
 		List<Point> bezier = new ArrayList<Point>();
 		float d = 1.0f / precision;
 		for (float t = 0.0f; t < 1.0f; t += d) {

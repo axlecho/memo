@@ -3,8 +3,9 @@ package com.axlecho.memo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -158,7 +159,7 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View arg0) {
-				cm.clearSurface();
+				cm.clear();
 			}
 
 		});
@@ -243,6 +244,7 @@ public class NewItemActivity extends SherlockActivity {
 		private SurfaceHolder sfh;
 		private final int DELETEANIMOTION = 0;
 		private final int RESET = 1;
+		private final int TEST = 2;
 		private int height;
 		private int width;
 		private float tarWidthIn;
@@ -305,6 +307,91 @@ public class NewItemActivity extends SherlockActivity {
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
 				switch (msg.what) {
+				case TEST:
+					if (animWidth <= tarWidthIn) {
+						Canvas ac = sfh.lockCanvas();
+
+						Paint canvasClear = new Paint();
+						canvasClear.setAlpha(0);
+						canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+						ac.drawRect(0, 0, width, height, canvasClear);
+
+						Path tmpPath = new Path();
+						tmpPath.moveTo(0, 0);
+						tmpPath.cubicTo(0, height * 0.2f, animWidth, height * 0.6f, animWidth, height);
+						tmpPath.lineTo(tarWidthOut, height);
+						tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
+						tmpPath.lineTo(0, 0);
+
+						Paint paint = new Paint();
+						paint.setColor(0);
+						paint.setAlpha(20);
+						ac.drawPath(tmpPath, paint);
+
+						ac.clipPath(tmpPath);
+
+						float dx = 7;
+						float dy = 7;
+						float unitX = ac.getWidth() / dx;
+						float unitY = ac.getHeight() / dy;
+						float t = 0.4f;
+
+						List<Bezier> bis = new ArrayList<Bezier>();
+						for (int i = 0; i < dx; i++) {
+							Point psrc = new Point(ac.getWidth() / dx * i, 0);
+							Point pdst = new Point((tarWidthIn - animWidth) / dx * i, ac.getHeight());
+							Point c1 = new Point(psrc.x, ac.getHeight() * t);
+							Point c2 = new Point(pdst.x, ac.getHeight() * (1 - t));
+							Bezier bi = new Bezier(psrc, pdst, c1, c2);
+
+							bis.add(bi);
+						}
+
+						for (int index = 1; index < bis.size(); index++) {
+							List<Point> end = bis.get(index).getPoints(dy);
+							List<Point> begin = bis.get(index - 1).getPoints(dy);
+
+							for (int pointi = 1; pointi < dy + 1; pointi++) {
+								Matrix mx = new Matrix();
+								float[] src = new float[] { 0, 0, // 左上
+										unitX, 0,// 右上
+										unitX, unitY,// 右下
+										0, unitY // 左下
+								};
+
+								float xs[] = { begin.get(pointi - 1).x, end.get(pointi - 1).x, begin.get(pointi).x,
+										end.get(pointi).x };
+								float ys[] = { begin.get(pointi - 1).y, end.get(pointi - 1).y, begin.get(pointi).y,
+										end.get(pointi).y };
+
+								float[] dst = new float[] { 0, 0, // 左上
+										xs[1] - xs[0], ys[1] - ys[0],// 右上
+										xs[3] - xs[0], ys[3] - ys[0],// 右下
+										xs[2] - xs[0], ys[2] - ys[0] // 左下
+								};
+
+								mx.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
+								mx.setScale(1.2f,1.2f);
+								try {
+									Bitmap bm = Bitmap.createBitmap(tarBtm, (int) unitX * (index - 1), (int) unitY
+											* (pointi - 1), (int) unitX, (int) unitY, mx, false);
+									ac.drawBitmap(bm, begin.get(pointi - 1).x, begin.get(pointi - 1).y, null);
+									// ac.drawBitmap(tdmp, unitX * (index - 1),
+									// unitY * (pointi - 1), null);
+								} catch (IllegalArgumentException e) {
+									Paint tpaint = new Paint();
+									tpaint.setColor(Color.BLACK);
+									tpaint.setAlpha(100);
+									tpaint.setStrokeWidth(2);
+									ac.drawLine(begin.get(pointi - 1).x, begin.get(pointi - 1).y, begin.get(pointi).x,
+											begin.get(pointi).y, tpaint);
+								}
+							}
+						}
+
+						sfh.unlockCanvasAndPost(ac);
+					}
+					break;
 				case RESET:
 					animWidth = 0;
 					animHeigt = 0;
@@ -383,13 +470,16 @@ public class NewItemActivity extends SherlockActivity {
 			tarWidthOut = width - 5.0f;
 
 			handler.sendEmptyMessage(RESET);
-			timer = new Timer();
-			timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					handler.sendEmptyMessage(DELETEANIMOTION);
-				}
-			}, 0, 5);
+			// timer = new Timer();
+			// timer.schedule(new TimerTask() {
+			// @Override
+			// public void run() {
+			// handler.sendEmptyMessage(DELETEANIMOTION);
+			// }
+			// }, 0, 5);
+
+			handler.sendEmptyMessage(TEST);
+
 		}
 	}
 
@@ -521,10 +611,14 @@ public class NewItemActivity extends SherlockActivity {
 			fOut.close();
 		}
 
-		public void clearSurface() {
+		public void clear() {
 
-			Bitmap bm = btmSurface.copy(Config.ARGB_8888, false);
+			Bitmap bm = btmImage.copy(Config.ARGB_8888, false);
 			am.delAnimotion(bm);
+			clearBg();
+		}
+
+		public void clearSurface() {
 
 			Paint canvasClear = new Paint();
 			canvasClear.setAlpha(0);
