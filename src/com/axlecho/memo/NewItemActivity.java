@@ -7,7 +7,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -37,6 +40,7 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -159,6 +163,7 @@ public class NewItemActivity extends SherlockActivity {
 			@Override
 			public void onClick(View arg0) {
 				cm.clearSurface();
+				cm.clearBg();
 			}
 
 		});
@@ -765,4 +770,45 @@ public class NewItemActivity extends SherlockActivity {
 		}
 	}
 
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+			AlertDialog.Builder builder = new Builder(this);
+			builder.setMessage("保存记录？");
+			builder.setTitle("提示");
+			builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					try {
+						insertRecord();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					NewItemActivity.this.finish();
+
+				}
+			});
+
+			builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					NewItemActivity.this.finish();
+				}
+			});
+			AlertDialog alertDialog = builder.create();
+			alertDialog.setCancelable(false);
+			alertDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+				@Override
+				public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+					if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+						return true;
+					} else {
+						return false; // 默认返回 false
+					}
+				}
+			});
+			alertDialog.show();
+		}
+		return super.onKeyDown(keyCode, event);
+	}
 }
