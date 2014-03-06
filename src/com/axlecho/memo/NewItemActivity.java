@@ -38,6 +38,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -250,7 +251,6 @@ public class NewItemActivity extends SherlockActivity {
 		private float tarWidthIn;
 		private float tarWidthOut;
 		private Timer timer;
-
 		private Bitmap tarBtm;
 
 		public AnimotionManager(Activity parent) {
@@ -299,10 +299,12 @@ public class NewItemActivity extends SherlockActivity {
 			sfh.setFormat(PixelFormat.TRANSLUCENT);
 		}
 
-		private void freeDeformation(float animWidthOutSize, float animWidth, float x, float y, Canvas cs) {
+		int test = 0;
 
-			float dx = 1;
-			float dy = 4;
+		private void freeDeformation(float animWidthOutSize, float animWidth, float dx, float dy, Canvas cs) {
+
+			// float dx = 1;
+			// float dy = 4;
 			float unitX = cs.getWidth() / dx;
 			float unitY = cs.getHeight() / dy;
 			float t = 0.4f;
@@ -323,7 +325,6 @@ public class NewItemActivity extends SherlockActivity {
 				List<Point> begin = bis.get(index - 1).getPoints(dy);
 
 				for (int pointi = 1; pointi < dy + 1; pointi++) {
-					Matrix mx = new Matrix();
 					float[] src = new float[] { 0, 0, // 左上
 							unitX, 0,// 右上
 							unitX, unitY,// 右下
@@ -341,12 +342,20 @@ public class NewItemActivity extends SherlockActivity {
 							xs[2] - xs[0], ys[2] - ys[0] // 左下
 					};
 
+					Matrix mx = new Matrix();
 					mx.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
+
 					try {
 						Bitmap bm = Bitmap.createBitmap(tarBtm, (int) unitX * (index - 1), (int) unitY * (pointi - 1),
 								(int) unitX, (int) unitY, mx, false);
+						// Bitmap bm = Bitmap.createBitmap(tarBtm, (int) unitX *
+						// (index - 1), (int) unitY * (pointi - 1),
+						// (int) unitX, (int) unitY);
+						Log.i("axlecho", "count:" + ++test);
 						cs.drawBitmap(bm, begin.get(pointi - 1).x, begin.get(pointi - 1).y - 1, null);
+						bm.recycle();
 						bm = null;
+
 					} catch (IllegalArgumentException e) {
 						Paint tpaint = new Paint();
 						tpaint.setColor(Color.BLACK);
@@ -357,6 +366,7 @@ public class NewItemActivity extends SherlockActivity {
 					}
 				}
 			}
+
 		}
 
 		private void drawPath(float aniWidth, Canvas cs) {
@@ -390,8 +400,11 @@ public class NewItemActivity extends SherlockActivity {
 				case DELETEANIMOTION:
 					if (animWidth <= tarWidthIn) {
 						Canvas ac = sfh.lockCanvas();
+
+						// Debug.startMethodTracing();
 						drawPath(animWidth, ac);
 						freeDeformation(tarWidthOut, animWidth, 1, 1, ac);
+						// Debug.stopMethodTracing();
 						sfh.unlockCanvasAndPost(ac);
 						animWidth += 20;
 					} else {
