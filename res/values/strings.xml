@@ -19,4 +19,6 @@
 	<string name="btn_delete">删除</string>
 	<string name="btn_pen">笔</string>
 	<string name="add_photo">添加图片</string>
+	<string name="record_add">添加纪录</string>
+	<string name="about">关于</string>
 </resources>

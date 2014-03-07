@@ -6,14 +6,12 @@
         android:showAsAction="never"
         android:title="@string/action_settings"/>
     <item
-        android:id="@+id/menu_add"
-        android:icon="@android:drawable/ic_menu_add"
-        android:showAsAction="ifRoom"
-        android:title="@string/menu_add"/>
+        android:id="@+id/action_about"
+        android:showAsAction="never"
+        android:title="@string/about"/>
+    
     <item
-        android:id="@+id/menu_edit"
+        android:id="@+id/menu_add"
         android:showAsAction="ifRoom|withText"
-        android:title="@string/menu_edit"
-        android:visible="false"/>
-
+        android:title="@string/record_add"/>
 </menu>

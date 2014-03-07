@@ -30,6 +30,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -54,6 +55,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -71,7 +73,7 @@ public class NewItemActivity extends SherlockActivity {
 	private PopupWindow popupAdd;
 	private EditText editAddTextView;
 	private TextView noteView;
-
+	private LinearLayout context;
 	private Button btnDel;
 	private Button btnSave;
 
@@ -89,20 +91,23 @@ public class NewItemActivity extends SherlockActivity {
 
 		popupAddView = getLayoutInflater().inflate(R.layout.menu_add, null, true);
 		popupAdd = new PopupWindow(popupAddView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
-		popupAdd.setBackgroundDrawable(new BitmapDrawable());
+		popupAdd.setBackgroundDrawable(new ColorDrawable(0xfff5f5f5));
 		popupAdd.setOutsideTouchable(true);
-
+		context = (LinearLayout) popupAddView.findViewById(R.id.context);
 		btnAddText = (Button) popupAddView.findViewById(R.id.btn_addtext);
 		btnAddText.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-
+				context.setVisibility(View.GONE);
+				editAddTextView.setVisibility(View.VISIBLE);
+				editAddTextView.setFocusable(true);
+				editAddTextView.requestFocus();
+				editAddTextView.setFocusableInTouchMode(true);
 			}
-
 		});
 
-		editAddTextView = (EditText) findViewById(R.id.view_addnote);
+		editAddTextView = (EditText) popupAddView.findViewById(R.id.view_addnote);
 		editAddTextView.addTextChangedListener(new TextWatcher() {
 
 			@Override
@@ -135,6 +140,7 @@ public class NewItemActivity extends SherlockActivity {
 				Uri imageUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "workupload.jpg"));
 				cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 				startActivityForResult(cameraIntent, Const.CAMERARESULT);
+				popupAdd.dismiss();
 			}
 
 		});
@@ -182,6 +188,8 @@ public class NewItemActivity extends SherlockActivity {
 			if (popupAdd.isShowing()) {
 				popupAdd.dismiss();
 			} else {
+				context.setVisibility(View.VISIBLE);
+				editAddTextView.setVisibility(View.GONE);
 				View v = getWindow().findViewById(Window.ID_ANDROID_CONTENT);
 				popupAdd.showAsDropDown(v, 0, -v.getHeight());
 			}
@@ -218,8 +226,7 @@ public class NewItemActivity extends SherlockActivity {
 			destDir.mkdirs();
 		}
 		String note = editAddTextView.getText().toString();
-		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data"
-				+ System.currentTimeMillis() + ".png";
+		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data" + System.currentTimeMillis() + ".png";
 		String voicePath = "";
 		cm.saveToPath(picPath);
 
@@ -261,6 +268,8 @@ public class NewItemActivity extends SherlockActivity {
 		}
 
 		public void setButtonBgAnimation(Button btn, int size) {
+			
+			Log.i("axlecho","what the hell.");
 			size = size + 1;
 			Drawable bgdrawable = btn.getBackground();
 			int w = bgdrawable.getIntrinsicWidth();
@@ -290,9 +299,6 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 			canvas.drawCircle(x, y, size, paint);
-
-			BitmapDrawable bd = new BitmapDrawable(bitmap);
-			btn.setBackgroundDrawable(bd);
 		}
 
 		private void initImageView(Activity parent) {
@@ -443,8 +449,7 @@ public class NewItemActivity extends SherlockActivity {
 				@Override
 				public void onGlobalLayout() {
 					imageSurfaceView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(),
-							Config.ARGB_8888);
+					btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(), Config.ARGB_8888);
 					imageSurfaceView.setImageBitmap(btmSurface);
 					canvasSurface = new Canvas(btmSurface);
 				}
@@ -503,8 +508,7 @@ public class NewItemActivity extends SherlockActivity {
 				} else {
 					scale = oldWidth / newWidth;
 				}
-				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale,
-						flagRotate);
+				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale, flagRotate);
 
 				canvasImage.drawBitmap(b, 0, 0, null);
 
@@ -774,16 +778,11 @@ public class NewItemActivity extends SherlockActivity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
 			AlertDialog.Builder builder = new Builder(this);
-			builder.setMessage("保存记录？");
-			builder.setTitle("提示");
+			builder.setMessage("丢弃记录？");
+			builder.setTitle("警告");
 			builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.dismiss();
-					try {
-						insertRecord();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
 					NewItemActivity.this.finish();
 
 				}
@@ -792,7 +791,6 @@ public class NewItemActivity extends SherlockActivity {
 			builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.dismiss();
-					NewItemActivity.this.finish();
 				}
 			});
 			AlertDialog alertDialog = builder.create();
