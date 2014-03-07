@@ -162,6 +162,7 @@ public class NewItemActivity extends SherlockActivity {
 			@Override
 			public void onClick(View arg0) {
 				cm.clear();
+				
 			}
 
 		});
@@ -403,7 +404,7 @@ public class NewItemActivity extends SherlockActivity {
 
 						// Debug.startMethodTracing();
 						drawPath(animWidth, ac);
-						freeDeformation(tarWidthOut, animWidth, 1, 1, ac);
+						freeDeformation(tarWidthOut, animWidth, 30, 30, ac);
 						// Debug.stopMethodTracing();
 						sfh.unlockCanvasAndPost(ac);
 						animWidth += 20;
@@ -447,7 +448,7 @@ public class NewItemActivity extends SherlockActivity {
 				public void run() {
 					handler.sendEmptyMessage(DELETEANIMOTION);
 				}
-			}, 0, 5);
+			}, 0, 5000);
 
 			handler.sendEmptyMessage(DELETEANIMOTION);
 
@@ -585,7 +586,7 @@ public class NewItemActivity extends SherlockActivity {
 
 		public void clear() {
 
-			Bitmap bm = btmSurface.copy(Config.ARGB_8888, false);
+			Bitmap bm = btmImage.copy(Config.ARGB_8888, false);
 			am.delAnimotion(bm);
 			clearBg();
 		}
