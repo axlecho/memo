@@ -473,7 +473,10 @@ public class NewItemActivity extends SherlockActivity {
 						old_y = me.getY();
 						tmpPath = new Path();
 						tmpPath.moveTo(me.getX(), me.getY());
-						canvasSurface.drawPoint(me.getX(), me.getY(), paint);
+//						canvasSurface.drawPoint(me.getX(), me.getY(), paint);
+						paint.setStyle(Style.FILL);
+						canvasSurface.drawCircle(me.getX(), me.getY(), paint.getStrokeWidth() / 2.0f, paint);
+						paint.setStyle(Style.STROKE);
 					} else if (me.getAction() == MotionEvent.ACTION_MOVE) {
 						if (tmpPath != null)
 							canvasSurface.drawPath(tmpPath, paint);
@@ -495,6 +498,9 @@ public class NewItemActivity extends SherlockActivity {
 					} else if (me.getAction() == MotionEvent.ACTION_UP) {
 						tmpPath.lineTo(me.getX(), me.getY());
 						canvasSurface.drawPath(tmpPath, paint);
+						paint.setStyle(Style.FILL);
+						canvasSurface.drawCircle(me.getX(), me.getY(), paint.getStrokeWidth() / 2.0f, paint);
+						paint.setStyle(Style.STROKE);
 						imageSurfaceView.invalidate();
 					}
 					return true;
