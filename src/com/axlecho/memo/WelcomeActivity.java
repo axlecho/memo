@@ -5,7 +5,6 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Window;

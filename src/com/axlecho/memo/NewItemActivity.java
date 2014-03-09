@@ -9,7 +9,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -29,6 +32,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,6 +44,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -53,6 +58,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -70,7 +76,7 @@ public class NewItemActivity extends SherlockActivity {
 	private PopupWindow popupAdd;
 	private EditText editAddTextView;
 	private TextView noteView;
-
+	private LinearLayout context;
 	private Button btnDel;
 	private Button btnSave;
 
@@ -88,20 +94,23 @@ public class NewItemActivity extends SherlockActivity {
 
 		popupAddView = getLayoutInflater().inflate(R.layout.menu_add, null, true);
 		popupAdd = new PopupWindow(popupAddView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
-		popupAdd.setBackgroundDrawable(new BitmapDrawable());
+		popupAdd.setBackgroundDrawable(new ColorDrawable(0xfff5f5f5));
 		popupAdd.setOutsideTouchable(true);
-
+		context = (LinearLayout) popupAddView.findViewById(R.id.context);
 		btnAddText = (Button) popupAddView.findViewById(R.id.btn_addtext);
 		btnAddText.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-
+				context.setVisibility(View.GONE);
+				editAddTextView.setVisibility(View.VISIBLE);
+				editAddTextView.setFocusable(true);
+				editAddTextView.requestFocus();
+				editAddTextView.setFocusableInTouchMode(true);
 			}
-
 		});
 
-		editAddTextView = (EditText) findViewById(R.id.view_addnote);
+		editAddTextView = (EditText) popupAddView.findViewById(R.id.view_addnote);
 		editAddTextView.addTextChangedListener(new TextWatcher() {
 
 			@Override
@@ -134,6 +143,7 @@ public class NewItemActivity extends SherlockActivity {
 				Uri imageUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "workupload.jpg"));
 				cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 				startActivityForResult(cameraIntent, Const.CAMERARESULT);
+				popupAdd.dismiss();
 			}
 
 		});
@@ -154,15 +164,17 @@ public class NewItemActivity extends SherlockActivity {
 		});
 
 		tm = new ToolsManager(this);
-		cm = new CanvasManager(this, tm.getPaint());
+		cm = new CanvasManager(this);
+
+		tm.setCanvasManager(cm);
 
 		btnDel = (Button) findViewById(R.id.btn_del_content);
 		btnDel.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
-				cm.clear();
-				
+				cm.clearSurface();
+				cm.clearBg();
 			}
 
 		});
@@ -181,6 +193,8 @@ public class NewItemActivity extends SherlockActivity {
 			if (popupAdd.isShowing()) {
 				popupAdd.dismiss();
 			} else {
+				context.setVisibility(View.VISIBLE);
+				editAddTextView.setVisibility(View.GONE);
 				View v = getWindow().findViewById(Window.ID_ANDROID_CONTENT);
 				popupAdd.showAsDropDown(v, 0, -v.getHeight());
 			}
@@ -259,6 +273,7 @@ public class NewItemActivity extends SherlockActivity {
 		}
 
 		public void setButtonBgAnimation(Button btn, int size) {
+
 			size = size + 1;
 			Drawable bgdrawable = btn.getBackground();
 			int w = bgdrawable.getIntrinsicWidth();
@@ -288,9 +303,7 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 			canvas.drawCircle(x, y, size, paint);
-
-			BitmapDrawable bd = new BitmapDrawable(bitmap);
-			btn.setBackgroundDrawable(bd);
+			btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
 		}
 
 		private void initImageView(Activity parent) {
@@ -473,8 +486,7 @@ public class NewItemActivity extends SherlockActivity {
 		private Paint paint;
 		private AnimotionManager am;
 
-		public CanvasManager(Activity parent, Paint paint) {
-			this.paint = paint;
+		public CanvasManager(Activity parent) {
 			initImageView(parent);
 			initImageSurfaceView(parent);
 			am = new AnimotionManager(parent);
@@ -516,6 +528,7 @@ public class NewItemActivity extends SherlockActivity {
 						old_y = me.getY();
 						tmpPath = new Path();
 						tmpPath.moveTo(me.getX(), me.getY());
+						canvasSurface.drawPoint(me.getX(), me.getY(), paint);
 					} else if (me.getAction() == MotionEvent.ACTION_MOVE) {
 						if (tmpPath != null)
 							canvasSurface.drawPath(tmpPath, paint);
@@ -607,6 +620,10 @@ public class NewItemActivity extends SherlockActivity {
 			canvasImage.drawRect(0, 0, canvasImage.getWidth(), canvasImage.getHeight(), canvasClear);
 			imageView.invalidate();
 		}
+
+		public void setPaint(Paint currentPaint) {
+			paint = currentPaint;
+		}
 	}
 
 	class ToolsManager {
@@ -630,11 +647,14 @@ public class NewItemActivity extends SherlockActivity {
 		private SeekBar seekbarSize;
 		private TextView penSizeView;
 
-		private Paint paint;
+		private Paint penPaint;
+		private Paint eraserPaint;
+		private Paint currentPaint;
 
 		private ColorSelectOnClickListener csOnClickListener;
 
 		private AnimotionManager am;
+		private CanvasManager cm;
 
 		public ToolsManager(Activity parent) {
 
@@ -647,16 +667,21 @@ public class NewItemActivity extends SherlockActivity {
 
 		}
 
+		public void setCanvasManager(CanvasManager cm) {
+			this.cm = cm;
+			cm.setPaint(currentPaint);
+		}
+
 		private void initPenEraser(Activity parent) {
 			btnEraser = (Button) parent.findViewById(R.id.btn_eraser);
 			btnEraser.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View arg0) {
-					paint.setAlpha(0);
-					paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-					// btnSelectColor.setVisibility(View.GONE);
-					// btnEraser.setVisibility(View.GONE);
-					// btnPen.setVisibility(View.VISIBLE);
+					currentPaint = eraserPaint;
+
+					cm.setPaint(currentPaint);
+					am.setButtonBgAnimation(btnSelectSize, (int) currentPaint.getStrokeWidth());
+					seekbarSize.setProgress((int) currentPaint.getStrokeWidth());
 					btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.pen));
 					btnEraser.setBackgroundDrawable(getResources().getDrawable(R.drawable.eraserpress));
 				}
@@ -667,26 +692,35 @@ public class NewItemActivity extends SherlockActivity {
 			btnPen.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View arg0) {
-					paint.setAlpha(255);
-					paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-					// btnSelectColor.setVisibility(View.VISIBLE);
-					// btnEraser.setVisibility(View.VISIBLE);
-					// btnPen.setVisibility(View.GONE);
+					currentPaint = penPaint;
+					cm.setPaint(currentPaint);
+
+					am.setButtonBgAnimation(btnSelectSize, (int) currentPaint.getStrokeWidth());
+					seekbarSize.setProgress((int) currentPaint.getStrokeWidth());
+					penPaint.setAlpha(255);
+					penPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 					btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.penpress));
 					btnEraser.setBackgroundDrawable(getResources().getDrawable(R.drawable.eraser));
 				}
 			});
 
-			// btnPen.setVisibility(View.GONE);
 			btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.penpress));
 		}
 
 		private void initPaint() {
-			paint = new Paint();
-			paint.setColor(Const.DEFAULTCOLOR);
-			paint.setStrokeWidth(Const.DEFAULTPENSIZE);
-			paint.setAntiAlias(true);
-			paint.setStyle(Style.STROKE);
+			penPaint = new Paint();
+			penPaint.setColor(Const.DEFAULTCOLOR);
+			penPaint.setStrokeWidth(Const.DEFAULTPENSIZE);
+			penPaint.setAntiAlias(true);
+			penPaint.setStyle(Style.STROKE);
+
+			eraserPaint = new Paint();
+			eraserPaint.setStrokeWidth(Const.DEFAULTPENSIZE);
+			eraserPaint.setAlpha(0);
+			eraserPaint.setStyle(Style.STROKE);
+			eraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+
+			currentPaint = penPaint;
 		}
 
 		private int popupSizeHeight = -1;
@@ -705,7 +739,7 @@ public class NewItemActivity extends SherlockActivity {
 				@Override
 				public void onProgressChanged(SeekBar arg0, int progress, boolean fromUser) {
 					penSizeView.setText("" + progress);
-					paint.setStrokeWidth(progress);
+					currentPaint.setStrokeWidth(progress);
 					am.setButtonBgAnimation(btnSelectSize, progress);
 				}
 
@@ -795,29 +829,29 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View v) {
-				paint.setAlpha(255);
-				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+				penPaint.setAlpha(255);
+				penPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 				switch (v.getId()) {
 				case R.id.btn_select_green:
-					paint.setColor(r.getColor(R.color.green));
+					currentPaint.setColor(r.getColor(R.color.green));
 					break;
 				case R.id.btn_select_black:
-					paint.setColor(r.getColor(R.color.black));
+					currentPaint.setColor(r.getColor(R.color.black));
 					break;
 				case R.id.btn_select_blue:
-					paint.setColor(r.getColor(R.color.blue));
+					currentPaint.setColor(r.getColor(R.color.blue));
 					break;
 				case R.id.btn_select_ivory:
-					paint.setColor(r.getColor(R.color.ivory));
+					currentPaint.setColor(r.getColor(R.color.ivory));
 					break;
 				case R.id.btn_select_purple:
-					paint.setColor(r.getColor(R.color.purple));
+					currentPaint.setColor(r.getColor(R.color.purple));
 					break;
 				case R.id.btn_select_red:
-					paint.setColor(r.getColor(R.color.red));
+					currentPaint.setColor(r.getColor(R.color.red));
 					break;
 				case R.id.btn_select_yellow:
-					paint.setColor(r.getColor(R.color.yellow));
+					currentPaint.setColor(r.getColor(R.color.yellow));
 					break;
 				default:
 					break;
@@ -827,9 +861,42 @@ public class NewItemActivity extends SherlockActivity {
 			}
 		}
 
-		public Paint getPaint() {
-			return paint;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+			AlertDialog.Builder builder = new Builder(this);
+			builder.setMessage("丢弃记录？");
+			builder.setTitle("警告");
+			builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					NewItemActivity.this.finish();
+
+				}
+			});
+
+			builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			AlertDialog alertDialog = builder.create();
+			alertDialog.setCancelable(false);
+			alertDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+				@Override
+				public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+					if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+						return true;
+					} else {
+						return false; // 默认返回 false
+					}
+				}
+			});
+			alertDialog.show();
 		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 }

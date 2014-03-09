@@ -74,8 +74,8 @@ public class MainActivity extends SherlockActivity {
 			Intent intent = new Intent(MainActivity.this, NewItemActivity.class);
 			startActivityForResult(intent, Const.NEWITEMRESULT);
 			break;
-		case R.id.menu_edit:
-			Log.i("menu", "item edit");
+		case R.id.action_about:
+			Log.i("menu", "item about");
 			break;
 		case R.id.action_settings:
 			Log.i("menu", "item setting");
@@ -167,7 +167,7 @@ public class MainActivity extends SherlockActivity {
 					curDel_btn.setVisibility(View.GONE);
 				}
 				if (curMask != null) {
-					curMask.setVisibility(View.GONE);
+					curMask.setVisibility(View.VISIBLE);
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:
@@ -190,9 +190,9 @@ public class MainActivity extends SherlockActivity {
 						break;
 					Button delbtn = (Button) view.findViewById(R.id.btn_del);
 					TextView delbtnMask = (TextView) view.findViewById(R.id.btn_del_mask);
-					TextView bottomMask = (TextView) view.findViewById(R.id.bottom_mask);
+					TextView bottomMask = (TextView) view.findViewById(R.id.note);
 
-					bottomMask.setVisibility(View.VISIBLE);
+					bottomMask.setVisibility(View.INVISIBLE);
 					delbtn.setVisibility(View.VISIBLE);
 					delbtnMask.setVisibility(View.VISIBLE);
 					delbtnMask.startAnimation(AnimationUtils.loadAnimation(parentContext, R.anim.delete_show));
