@@ -226,7 +226,8 @@ public class NewItemActivity extends SherlockActivity {
 			destDir.mkdirs();
 		}
 		String note = editAddTextView.getText().toString();
-		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data" + System.currentTimeMillis() + ".png";
+		String picPath = Environment.getExternalStorageDirectory().getPath() + "/Memo/" + "memo_pic_data"
+				+ System.currentTimeMillis() + ".png";
 		String voicePath = "";
 		cm.saveToPath(picPath);
 
@@ -268,8 +269,7 @@ public class NewItemActivity extends SherlockActivity {
 		}
 
 		public void setButtonBgAnimation(Button btn, int size) {
-			
-			Log.i("axlecho","what the hell.");
+
 			size = size + 1;
 			Drawable bgdrawable = btn.getBackground();
 			int w = bgdrawable.getIntrinsicWidth();
@@ -299,6 +299,7 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 			canvas.drawCircle(x, y, size, paint);
+			btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
 		}
 
 		private void initImageView(Activity parent) {
@@ -449,7 +450,8 @@ public class NewItemActivity extends SherlockActivity {
 				@Override
 				public void onGlobalLayout() {
 					imageSurfaceView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(), Config.ARGB_8888);
+					btmSurface = Bitmap.createBitmap(imageSurfaceView.getWidth(), imageSurfaceView.getHeight(),
+							Config.ARGB_8888);
 					imageSurfaceView.setImageBitmap(btmSurface);
 					canvasSurface = new Canvas(btmSurface);
 				}
@@ -508,7 +510,8 @@ public class NewItemActivity extends SherlockActivity {
 				} else {
 					scale = oldWidth / newWidth;
 				}
-				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale, flagRotate);
+				Bitmap b = PicZoom(camerabitmap, camerabitmap.getWidth() / scale, camerabitmap.getHeight() / scale,
+						flagRotate);
 
 				canvasImage.drawBitmap(b, 0, 0, null);
 
