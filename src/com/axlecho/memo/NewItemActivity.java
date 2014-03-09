@@ -260,14 +260,14 @@ public class NewItemActivity extends SherlockActivity {
 		private final int RESET = 1;
 		private int height;
 		private int width;
-		
+
 		int animDxRate = 15;
 		int animDyRate = 15;
-		
+
 		private float tarWidthIn;
 		private float tarWidthOut;
 		private Timer timer;
-		
+
 		private Bitmap tarBtm;
 
 		public AnimotionManager(Activity parent) {
@@ -280,8 +280,12 @@ public class NewItemActivity extends SherlockActivity {
 			Drawable bgdrawable = btn.getBackground();
 			int w = bgdrawable.getIntrinsicWidth();
 			int h = bgdrawable.getIntrinsicHeight();
-			
-			Bitmap bitmap = Bitmap.createBitmap(w, h, Config.ARGB_4444);
+
+			// BitmapDrawable bd = (BitmapDrawable) bgdrawable;
+			// Bitmap bitmap = bd.getBitmap();
+			Bitmap.Config config = bgdrawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+					: Bitmap.Config.RGB_565;
+			Bitmap bitmap = Bitmap.createBitmap(w, h, config);
 
 			Paint paint = new Paint();
 			paint.setAntiAlias(true);
@@ -306,7 +310,10 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 			canvas.drawCircle(x, y, size, paint);
-			btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
+			
+			BitmapDrawable bd = new BitmapDrawable(bitmap);
+			bd.setTargetDensity(getResources().getDisplayMetrics());
+			btn.setBackgroundDrawable(bd);
 		}
 
 		private void initImageView(Activity parent) {
@@ -328,9 +335,9 @@ public class NewItemActivity extends SherlockActivity {
 					animWidth = 0;
 					animHeigt = 0;
 					break;
-					
+
 				case DELETEANIMOTION:
-					
+
 					int animDx = width / animDxRate;
 					int animDy = height / animDyRate;
 					if (animWidth <= tarWidthIn) {
@@ -399,7 +406,7 @@ public class NewItemActivity extends SherlockActivity {
 			tarBtm = srcBtm;
 			height = srcBtm.getHeight() - btnDel.getHeight() - 10;
 			width = srcBtm.getWidth();
-			
+
 			tarWidthIn = width - btnDel.getWidth() - 5.0f;
 			tarWidthOut = width - 5.0f;
 
@@ -473,7 +480,7 @@ public class NewItemActivity extends SherlockActivity {
 						old_y = me.getY();
 						tmpPath = new Path();
 						tmpPath.moveTo(me.getX(), me.getY());
-//						canvasSurface.drawPoint(me.getX(), me.getY(), paint);
+						// canvasSurface.drawPoint(me.getX(), me.getY(), paint);
 						paint.setStyle(Style.FILL);
 						canvasSurface.drawCircle(me.getX(), me.getY(), paint.getStrokeWidth() / 2.0f, paint);
 						paint.setStyle(Style.STROKE);
