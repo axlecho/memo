@@ -161,7 +161,9 @@ public class NewItemActivity extends SherlockActivity {
 		});
 
 		tm = new ToolsManager(this);
-		cm = new CanvasManager(this, tm.getPaint());
+		cm = new CanvasManager(this);
+
+		tm.setCanvasManager(cm);
 
 		btnDel = (Button) findViewById(R.id.btn_del_content);
 		btnDel.setOnClickListener(new OnClickListener() {
@@ -422,8 +424,7 @@ public class NewItemActivity extends SherlockActivity {
 		private Paint paint;
 		private AnimotionManager am;
 
-		public CanvasManager(Activity parent, Paint paint) {
-			this.paint = paint;
+		public CanvasManager(Activity parent) {
 			initImageView(parent);
 			initImageSurfaceView(parent);
 			am = new AnimotionManager(parent);
@@ -465,6 +466,7 @@ public class NewItemActivity extends SherlockActivity {
 						old_y = me.getY();
 						tmpPath = new Path();
 						tmpPath.moveTo(me.getX(), me.getY());
+						canvasSurface.drawPoint(me.getX(), me.getY(), paint);
 					} else if (me.getAction() == MotionEvent.ACTION_MOVE) {
 						if (tmpPath != null)
 							canvasSurface.drawPath(tmpPath, paint);
@@ -552,6 +554,10 @@ public class NewItemActivity extends SherlockActivity {
 			canvasImage.drawRect(0, 0, canvasImage.getWidth(), canvasImage.getHeight(), canvasClear);
 			imageView.invalidate();
 		}
+
+		public void setPaint(Paint currentPaint) {
+			paint = currentPaint;
+		}
 	}
 
 	class ToolsManager {
@@ -575,11 +581,14 @@ public class NewItemActivity extends SherlockActivity {
 		private SeekBar seekbarSize;
 		private TextView penSizeView;
 
-		private Paint paint;
+		private Paint penPaint;
+		private Paint eraserPaint;
+		private Paint currentPaint;
 
 		private ColorSelectOnClickListener csOnClickListener;
 
 		private AnimotionManager am;
+		private CanvasManager cm;
 
 		public ToolsManager(Activity parent) {
 
@@ -592,16 +601,21 @@ public class NewItemActivity extends SherlockActivity {
 
 		}
 
+		public void setCanvasManager(CanvasManager cm) {
+			this.cm = cm;
+			cm.setPaint(currentPaint);
+		}
+
 		private void initPenEraser(Activity parent) {
 			btnEraser = (Button) parent.findViewById(R.id.btn_eraser);
 			btnEraser.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View arg0) {
-					paint.setAlpha(0);
-					paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-					// btnSelectColor.setVisibility(View.GONE);
-					// btnEraser.setVisibility(View.GONE);
-					// btnPen.setVisibility(View.VISIBLE);
+					currentPaint = eraserPaint;
+
+					cm.setPaint(currentPaint);
+					am.setButtonBgAnimation(btnSelectSize, (int) currentPaint.getStrokeWidth());
+					seekbarSize.setProgress((int) currentPaint.getStrokeWidth());
 					btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.pen));
 					btnEraser.setBackgroundDrawable(getResources().getDrawable(R.drawable.eraserpress));
 				}
@@ -612,26 +626,35 @@ public class NewItemActivity extends SherlockActivity {
 			btnPen.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View arg0) {
-					paint.setAlpha(255);
-					paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-					// btnSelectColor.setVisibility(View.VISIBLE);
-					// btnEraser.setVisibility(View.VISIBLE);
-					// btnPen.setVisibility(View.GONE);
+					currentPaint = penPaint;
+					cm.setPaint(currentPaint);
+
+					am.setButtonBgAnimation(btnSelectSize, (int) currentPaint.getStrokeWidth());
+					seekbarSize.setProgress((int) currentPaint.getStrokeWidth());
+					penPaint.setAlpha(255);
+					penPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 					btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.penpress));
 					btnEraser.setBackgroundDrawable(getResources().getDrawable(R.drawable.eraser));
 				}
 			});
 
-			// btnPen.setVisibility(View.GONE);
 			btnPen.setBackgroundDrawable(getResources().getDrawable(R.drawable.penpress));
 		}
 
 		private void initPaint() {
-			paint = new Paint();
-			paint.setColor(Const.DEFAULTCOLOR);
-			paint.setStrokeWidth(Const.DEFAULTPENSIZE);
-			paint.setAntiAlias(true);
-			paint.setStyle(Style.STROKE);
+			penPaint = new Paint();
+			penPaint.setColor(Const.DEFAULTCOLOR);
+			penPaint.setStrokeWidth(Const.DEFAULTPENSIZE);
+			penPaint.setAntiAlias(true);
+			penPaint.setStyle(Style.STROKE);
+
+			eraserPaint = new Paint();
+			eraserPaint.setStrokeWidth(Const.DEFAULTPENSIZE);
+			eraserPaint.setAlpha(0);
+			eraserPaint.setStyle(Style.STROKE);
+			eraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+
+			currentPaint = penPaint;
 		}
 
 		private int popupSizeHeight = -1;
@@ -650,7 +673,7 @@ public class NewItemActivity extends SherlockActivity {
 				@Override
 				public void onProgressChanged(SeekBar arg0, int progress, boolean fromUser) {
 					penSizeView.setText("" + progress);
-					paint.setStrokeWidth(progress);
+					currentPaint.setStrokeWidth(progress);
 					am.setButtonBgAnimation(btnSelectSize, progress);
 				}
 
@@ -740,29 +763,29 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View v) {
-				paint.setAlpha(255);
-				paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+				penPaint.setAlpha(255);
+				penPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 				switch (v.getId()) {
 				case R.id.btn_select_green:
-					paint.setColor(r.getColor(R.color.green));
+					currentPaint.setColor(r.getColor(R.color.green));
 					break;
 				case R.id.btn_select_black:
-					paint.setColor(r.getColor(R.color.black));
+					currentPaint.setColor(r.getColor(R.color.black));
 					break;
 				case R.id.btn_select_blue:
-					paint.setColor(r.getColor(R.color.blue));
+					currentPaint.setColor(r.getColor(R.color.blue));
 					break;
 				case R.id.btn_select_ivory:
-					paint.setColor(r.getColor(R.color.ivory));
+					currentPaint.setColor(r.getColor(R.color.ivory));
 					break;
 				case R.id.btn_select_purple:
-					paint.setColor(r.getColor(R.color.purple));
+					currentPaint.setColor(r.getColor(R.color.purple));
 					break;
 				case R.id.btn_select_red:
-					paint.setColor(r.getColor(R.color.red));
+					currentPaint.setColor(r.getColor(R.color.red));
 					break;
 				case R.id.btn_select_yellow:
-					paint.setColor(r.getColor(R.color.yellow));
+					currentPaint.setColor(r.getColor(R.color.yellow));
 					break;
 				default:
 					break;
@@ -772,9 +795,6 @@ public class NewItemActivity extends SherlockActivity {
 			}
 		}
 
-		public Paint getPaint() {
-			return paint;
-		}
 	}
 
 	@Override
@@ -812,4 +832,5 @@ public class NewItemActivity extends SherlockActivity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+
 }
