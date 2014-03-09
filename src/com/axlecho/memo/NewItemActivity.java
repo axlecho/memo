@@ -260,10 +260,14 @@ public class NewItemActivity extends SherlockActivity {
 		private final int RESET = 1;
 		private int height;
 		private int width;
+		
+		int animDxRate = 15;
+		int animDyRate = 15;
+		
 		private float tarWidthIn;
 		private float tarWidthOut;
 		private Timer timer;
-
+		
 		private Bitmap tarBtm;
 
 		public AnimotionManager(Activity parent) {
@@ -276,6 +280,7 @@ public class NewItemActivity extends SherlockActivity {
 			Drawable bgdrawable = btn.getBackground();
 			int w = bgdrawable.getIntrinsicWidth();
 			int h = bgdrawable.getIntrinsicHeight();
+			
 			Bitmap bitmap = Bitmap.createBitmap(w, h, Config.ARGB_4444);
 
 			Paint paint = new Paint();
@@ -323,9 +328,11 @@ public class NewItemActivity extends SherlockActivity {
 					animWidth = 0;
 					animHeigt = 0;
 					break;
-
+					
 				case DELETEANIMOTION:
-
+					
+					int animDx = width / animDxRate;
+					int animDy = height / animDyRate;
 					if (animWidth <= tarWidthIn) {
 						Canvas canvas = sfh.lockCanvas();
 
@@ -364,14 +371,14 @@ public class NewItemActivity extends SherlockActivity {
 						matrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
 						canvas.drawBitmap(tarBtm, matrix, null);
 						sfh.unlockCanvasAndPost(canvas);
-						animWidth += 20;
+						animWidth += animDx;
 
 					} else {
 						if (animHeigt > height) {
 							timer.cancel();
 							return;
 						}
-						animHeigt += 18;
+						animHeigt += animDy;
 						Rect r = new Rect(0, 0, width, animHeigt);
 						Canvas canvas = sfh.lockCanvas(r);
 						Paint canvasClear = new Paint();
@@ -392,7 +399,7 @@ public class NewItemActivity extends SherlockActivity {
 			tarBtm = srcBtm;
 			height = srcBtm.getHeight() - btnDel.getHeight() - 10;
 			width = srcBtm.getWidth();
-
+			
 			tarWidthIn = width - btnDel.getWidth() - 5.0f;
 			tarWidthOut = width - 5.0f;
 
