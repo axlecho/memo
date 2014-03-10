@@ -44,7 +44,6 @@ public class MainActivity extends SherlockActivity {
 		listView = new ListViewEx(this);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
 				final Intent intent = new Intent(MainActivity.this, ShowActivity.class);
@@ -59,6 +58,9 @@ public class MainActivity extends SherlockActivity {
 		setContentView(listView);
 
 		listView.setBackgroundColor(this.getResources().getColor(R.color.bgwhite));
+		if (listDatas.isEmpty()) {
+			listView.setBackgroundResource(R.drawable.master_null_bg);
+		}
 	}
 
 	@Override
@@ -91,6 +93,9 @@ public class MainActivity extends SherlockActivity {
 		if (requestCode == Const.NEWITEMRESULT)
 			initListDatas();
 		adapter.notifyDataSetChanged();
+		if (!listDatas.isEmpty()) {
+			listView.setBackgroundColor(this.getResources().getColor(R.color.bgwhite));
+		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
@@ -207,6 +212,9 @@ public class MainActivity extends SherlockActivity {
 							deleteRecord(listDatas.get(position));
 							listDatas.remove(position);
 							adapter.notifyDataSetChanged();
+							if (listDatas.isEmpty()) {
+								listView.setBackgroundResource(R.drawable.master_null_bg);
+							}
 						}
 					});
 				}

@@ -783,6 +783,11 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View v) {
+				//禁用eraser模式下的colorselect
+				if(currentPaint == eraserPaint){
+					popupColor.dismiss();
+					return ;
+				}
 				penPaint.setAlpha(255);
 				penPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 				switch (v.getId()) {
