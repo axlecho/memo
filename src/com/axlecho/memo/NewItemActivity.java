@@ -3,8 +3,6 @@ package com.axlecho.memo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -42,7 +40,6 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -263,9 +260,14 @@ public class NewItemActivity extends SherlockActivity {
 		private final int RESET = 1;
 		private int height;
 		private int width;
+
+		int animDxRate = 15;
+		int animDyRate = 15;
+
 		private float tarWidthIn;
 		private float tarWidthOut;
 		private Timer timer;
+
 		private Bitmap tarBtm;
 
 		public AnimotionManager(Activity parent) {
@@ -278,7 +280,12 @@ public class NewItemActivity extends SherlockActivity {
 			Drawable bgdrawable = btn.getBackground();
 			int w = bgdrawable.getIntrinsicWidth();
 			int h = bgdrawable.getIntrinsicHeight();
-			Bitmap bitmap = Bitmap.createBitmap(w, h, Config.ARGB_4444);
+
+			// BitmapDrawable bd = (BitmapDrawable) bgdrawable;
+			// Bitmap bitmap = bd.getBitmap();
+			Bitmap.Config config = bgdrawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+					: Bitmap.Config.RGB_565;
+			Bitmap bitmap = Bitmap.createBitmap(w, h, config);
 
 			Paint paint = new Paint();
 			paint.setAntiAlias(true);
@@ -303,7 +310,10 @@ public class NewItemActivity extends SherlockActivity {
 			}
 
 			canvas.drawCircle(x, y, size, paint);
-			btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
+			
+			BitmapDrawable bd = new BitmapDrawable(bitmap);
+			bd.setTargetDensity(getResources().getDisplayMetrics());
+			btn.setBackgroundDrawable(bd);
 		}
 
 		private void initImageView(Activity parent) {
@@ -311,96 +321,6 @@ public class NewItemActivity extends SherlockActivity {
 			sfh = sfv.getHolder();
 			sfv.setZOrderOnTop(true);
 			sfh.setFormat(PixelFormat.TRANSLUCENT);
-		}
-
-		int test = 0;
-
-		private void freeDeformation(float animWidthOutSize, float animWidth, float dx, float dy, Canvas cs) {
-
-			// float dx = 1;
-			// float dy = 4;
-			float unitX = cs.getWidth() / dx;
-			float unitY = cs.getHeight() / dy;
-			float t = 0.4f;
-
-			List<Bezier> bis = new ArrayList<Bezier>();
-			for (int i = 0; i <= dx; i++) {
-				Point psrc = new Point(width / dx * i, 0);
-				Point pdst = new Point((tarWidthOut - animWidth) / dx * i + animWidth, height);
-				Point c1 = new Point(psrc.x, height * t);
-				Point c2 = new Point(pdst.x, height * (1 - t));
-				Bezier bi = new Bezier(psrc, pdst, c1, c2);
-
-				bis.add(bi);
-			}
-
-			for (int index = 1; index < bis.size(); index++) {
-				List<Point> end = bis.get(index).getPoints(dy);
-				List<Point> begin = bis.get(index - 1).getPoints(dy);
-
-				for (int pointi = 1; pointi < dy + 1; pointi++) {
-					float[] src = new float[] { 0, 0, // 左上
-							unitX, 0,// 右上
-							unitX, unitY,// 右下
-							0, unitY // 左下
-					};
-
-					float xs[] = { begin.get(pointi - 1).x, end.get(pointi - 1).x, begin.get(pointi).x,
-							end.get(pointi).x };
-					float ys[] = { begin.get(pointi - 1).y, end.get(pointi - 1).y, begin.get(pointi).y,
-							end.get(pointi).y };
-
-					float[] dst = new float[] { 0, 0, // 左上
-							xs[1] - xs[0], ys[1] - ys[0],// 右上
-							xs[3] - xs[0], ys[3] - ys[0],// 右下
-							xs[2] - xs[0], ys[2] - ys[0] // 左下
-					};
-
-					Matrix mx = new Matrix();
-					mx.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
-
-					try {
-						Bitmap bm = Bitmap.createBitmap(tarBtm, (int) unitX * (index - 1), (int) unitY * (pointi - 1),
-								(int) unitX, (int) unitY, mx, false);
-						// Bitmap bm = Bitmap.createBitmap(tarBtm, (int) unitX *
-						// (index - 1), (int) unitY * (pointi - 1),
-						// (int) unitX, (int) unitY);
-						Log.i("axlecho", "count:" + ++test);
-						cs.drawBitmap(bm, begin.get(pointi - 1).x, begin.get(pointi - 1).y - 1, null);
-						bm.recycle();
-						bm = null;
-
-					} catch (IllegalArgumentException e) {
-						Paint tpaint = new Paint();
-						tpaint.setColor(Color.BLACK);
-						tpaint.setAlpha(100);
-						tpaint.setStrokeWidth(2);
-						cs.drawLine(begin.get(pointi - 1).x, begin.get(pointi - 1).y, begin.get(pointi).x,
-								begin.get(pointi).y, tpaint);
-					}
-				}
-			}
-
-		}
-
-		private void drawPath(float aniWidth, Canvas cs) {
-			Paint canvasClear = new Paint();
-			canvasClear.setAlpha(0);
-			canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-			cs.drawRect(0, 0, width, height, canvasClear);
-
-			Path tmpPath = new Path();
-			tmpPath.moveTo(0, 0);
-			tmpPath.cubicTo(0, height * 0.2f, aniWidth, height * 0.6f, aniWidth, height);
-			tmpPath.lineTo(tarWidthOut, height);
-			tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
-			tmpPath.lineTo(0, 0);
-
-			Paint paint = new Paint();
-			paint.setColor(0);
-			paint.setAlpha(20);
-			cs.drawPath(tmpPath, paint);
-			cs.clipPath(tmpPath);
 		}
 
 		Handler handler = new Handler() {
@@ -411,22 +331,61 @@ public class NewItemActivity extends SherlockActivity {
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
 				switch (msg.what) {
-				case DELETEANIMOTION:
-					if (animWidth <= tarWidthIn) {
-						Canvas ac = sfh.lockCanvas();
+				case RESET:
+					animWidth = 0;
+					animHeigt = 0;
+					break;
 
-						// Debug.startMethodTracing();
-						drawPath(animWidth, ac);
-						freeDeformation(tarWidthOut, animWidth, 30, 30, ac);
-						// Debug.stopMethodTracing();
-						sfh.unlockCanvasAndPost(ac);
-						animWidth += 20;
+				case DELETEANIMOTION:
+
+					int animDx = width / animDxRate;
+					int animDy = height / animDyRate;
+					if (animWidth <= tarWidthIn) {
+						Canvas canvas = sfh.lockCanvas();
+
+						Paint canvasClear = new Paint();
+						canvasClear.setAlpha(0);
+						canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+						canvas.drawRect(0, 0, width, height, canvasClear);
+
+						Path tmpPath = new Path();
+						tmpPath.moveTo(0, 0);
+						tmpPath.cubicTo(0, height * 0.2f, animWidth, height * 0.6f, animWidth, height);
+						tmpPath.lineTo(tarWidthOut, height);
+						tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
+						tmpPath.lineTo(0, 0);
+
+						Paint paint = new Paint();
+						paint.setColor(0);
+						paint.setAlpha(20);
+						canvas.drawPath(tmpPath, paint);
+
+						canvas.clipPath(tmpPath);
+
+						Matrix matrix = new Matrix();
+
+						float[] src = new float[] { 0, 0, // 左上
+								width, 0,// 右上
+								width, height,// 右下
+								0, height // 左下
+						};
+
+						float[] dst = new float[] { 0, 0, // 左上
+								width, 0,// 右上
+								tarWidthOut, height,// 右下
+								animWidth, height // 左下
+						};
+						matrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
+						canvas.drawBitmap(tarBtm, matrix, null);
+						sfh.unlockCanvasAndPost(canvas);
+						animWidth += animDx;
+
 					} else {
 						if (animHeigt > height) {
 							timer.cancel();
 							return;
 						}
-						animHeigt += 18;
+						animHeigt += animDy;
 						Rect r = new Rect(0, 0, width, animHeigt);
 						Canvas canvas = sfh.lockCanvas(r);
 						Paint canvasClear = new Paint();
@@ -435,10 +394,7 @@ public class NewItemActivity extends SherlockActivity {
 						canvas.drawRect(0, 0, width, animHeigt, canvasClear);
 						sfh.unlockCanvasAndPost(canvas);
 					}
-					break;
-				case RESET:
-					animWidth = 0;
-					animHeigt = 0;
+
 					break;
 				default:
 					break;
@@ -461,12 +417,8 @@ public class NewItemActivity extends SherlockActivity {
 				public void run() {
 					handler.sendEmptyMessage(DELETEANIMOTION);
 				}
-			}, 0, 5000);
-
-			handler.sendEmptyMessage(DELETEANIMOTION);
-
+			}, 0, 5);
 		}
-
 	}
 
 	class CanvasManager {
@@ -528,7 +480,10 @@ public class NewItemActivity extends SherlockActivity {
 						old_y = me.getY();
 						tmpPath = new Path();
 						tmpPath.moveTo(me.getX(), me.getY());
-						canvasSurface.drawPoint(me.getX(), me.getY(), paint);
+						// canvasSurface.drawPoint(me.getX(), me.getY(), paint);
+						paint.setStyle(Style.FILL);
+						canvasSurface.drawCircle(me.getX(), me.getY(), paint.getStrokeWidth() / 2.0f, paint);
+						paint.setStyle(Style.STROKE);
 					} else if (me.getAction() == MotionEvent.ACTION_MOVE) {
 						if (tmpPath != null)
 							canvasSurface.drawPath(tmpPath, paint);
@@ -550,6 +505,9 @@ public class NewItemActivity extends SherlockActivity {
 					} else if (me.getAction() == MotionEvent.ACTION_UP) {
 						tmpPath.lineTo(me.getX(), me.getY());
 						canvasSurface.drawPath(tmpPath, paint);
+						paint.setStyle(Style.FILL);
+						canvasSurface.drawCircle(me.getX(), me.getY(), paint.getStrokeWidth() / 2.0f, paint);
+						paint.setStyle(Style.STROKE);
 						imageSurfaceView.invalidate();
 					}
 					return true;
@@ -597,14 +555,10 @@ public class NewItemActivity extends SherlockActivity {
 			fOut.close();
 		}
 
-		public void clear() {
-
-			Bitmap bm = btmImage.copy(Config.ARGB_8888, false);
-			am.delAnimotion(bm);
-			clearBg();
-		}
-
 		public void clearSurface() {
+
+			Bitmap bm = btmSurface.copy(Config.ARGB_8888, false);
+			am.delAnimotion(bm);
 
 			Paint canvasClear = new Paint();
 			canvasClear.setAlpha(0);
@@ -829,6 +783,11 @@ public class NewItemActivity extends SherlockActivity {
 
 			@Override
 			public void onClick(View v) {
+				//禁用eraser模式下的colorselect
+				if(currentPaint == eraserPaint){
+					popupColor.dismiss();
+					return ;
+				}
 				penPaint.setAlpha(255);
 				penPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 				switch (v.getId()) {
