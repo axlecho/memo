@@ -5,12 +5,16 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.axlecho.memo.main.MainActivity;
+import com.axlecho.memo.unit.SqlManager;
+
 public class WelcomeActivity extends Activity {
+
+	private int showInterFaceTime = 2; // time for loading interface
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +25,9 @@ public class WelcomeActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_welcome);
 
-		final Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+		// stop for show the loading interface;
+		final Intent intent = new Intent(WelcomeActivity.this,
+				MainActivity.class);
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
@@ -29,10 +35,9 @@ public class WelcomeActivity extends Activity {
 				startActivity(intent);
 				finish();
 			}
-		}, 1000 * 2);
+		}, 1000 * showInterFaceTime);
 
-		SQLiteDatabase db = this.openOrCreateDatabase("datas", MODE_PRIVATE, null);
-		db.execSQL("create table if not exists memo_datas (recordid integer primary key autoincrement, note varchar(256),pic_path varchar(256),voice_path varchar(256),time datetime default current_timestamp)");
-		db.close();
+		SqlManager sqm = new SqlManager(this);
+		sqm.init();
 	}
 }

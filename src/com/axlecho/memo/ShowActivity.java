@@ -16,7 +16,8 @@ public class ShowActivity extends SherlockActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//TODO 适应横竖屏幕
+		
+		// TODO 适应横竖屏幕
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_show);
 		String pic_path = (String) getIntent().getStringExtra("pic_path");
