@@ -13,7 +13,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/memo-icon"
+        android:icon="@drawable/memo_icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="stateVisible|adjustPan" >
