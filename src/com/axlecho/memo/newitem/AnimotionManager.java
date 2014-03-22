@@ -1,5 +1,6 @@
 package com.axlecho.memo.newitem;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -7,7 +8,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
@@ -18,11 +18,14 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Button;
 
 import com.axlecho.memo.R;
+import com.axlecho.memo.unit.Bezier;
+import com.axlecho.memo.unit.Point;
 
 class AnimotionManager {
 	private SurfaceView sfv;
@@ -140,21 +143,36 @@ class AnimotionManager {
 
 					canvas.clipPath(tmpPath);
 
-					Matrix matrix = new Matrix();
+					//Matrix matrix = new Matrix();
 
-					float[] src = new float[] { 0, 0, // 左上
-							width, 0,// 右上
-							width, height,// 右下
-							0, height // 左下
-					};
+					//float[] src = new float[] { 0, 0, // 左上
+					//		width, 0,// 右上
+					//		width, height,// 右下
+					//		0, height // 左下
+					//};
 
-					float[] dst = new float[] { 0, 0, // 左上
-							width, 0,// 右上
-							tarWidthOut, height,// 右下
-							animWidth, height // 左下
-					};
-					matrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
-					canvas.drawBitmap(tarBtm, matrix, null);
+					//float[] dst = new float[] { 0, 0, // 左上
+					//		width, 0,// 右上
+					//		tarWidthOut, height,// 右下
+					//		animWidth, height // 左下
+					//};
+					//matrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
+					Point src = new Point(0.0f,0.0f);
+					Point dst = new Point(animWidth,height);
+					Point c1 = new Point(0.0f,0.4f * height);
+					Point c2 = new Point (animWidth,0.6f * height);
+					
+					Bezier bezier = new Bezier(src,dst,c1,c2);
+					List<Point> points = bezier.getPoints(100);
+					float[] scaleRate = new float[101];
+					for(int i = 0;i < points.size();++ i){
+						scaleRate[i] = points.get(i).y;
+					}
+					
+					Log.i("am","" + tarBtm.getConfig());
+					
+					NdkDrawer.scale(tarBtm,scaleRate);
+					canvas.drawBitmap(tarBtm,0,0, null);
 					sfh.unlockCanvasAndPost(canvas);
 					animWidth += animDx;
 
