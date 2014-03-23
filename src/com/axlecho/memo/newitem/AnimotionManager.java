@@ -14,6 +14,7 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.Bitmap.Config;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -164,17 +165,21 @@ class AnimotionManager {
 					
 					Bezier bezier = new Bezier(src,dst,c1,c2);
 					List<Point> points = bezier.getPoints(100);
-					float[] scaleRate = new float[103];
+					int[] scaleRateX = new int[103];
+					int[] scaleRateY = new int[103];
 					for(int i = 0;i < points.size();++ i){
 						if(i > 102) {
 							Log.e("am","arrayindex out bound! i:" + i + " points.size:" + points.size());
 							return;
 						}
-						scaleRate[i] = points.get(i).y;
+						scaleRateX[i] = (int) points.get(i).x;
+						scaleRateY[i] = (int) points.get(i).y;						
 					}
-										
-					NdkDrawer.scale(tarBtm,scaleRate);
-					canvas.drawBitmap(tarBtm,0,0, null);
+					
+					Bitmap bm = tarBtm.copy(Config.ARGB_8888, false);
+					NdkDrawer.scale(bm,scaleRateX,scaleRateY);
+					canvas.drawBitmap(bm,0,0, null);
+					
 					sfh.unlockCanvasAndPost(canvas);
 					animWidth += animDx;
 

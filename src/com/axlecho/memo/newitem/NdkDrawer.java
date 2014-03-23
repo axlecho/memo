@@ -7,5 +7,5 @@ public class NdkDrawer {
 		System.loadLibrary("ndkDrawer");
 	}
 	
-	native static void scale(Bitmap btm, float[] scaleRate);
+	native static void scale(Bitmap btm, int[] scaleRateX,int[] scaleRateY);
 }

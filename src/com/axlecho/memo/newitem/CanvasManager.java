@@ -161,7 +161,7 @@ class CanvasManager {
 	public void clearSurface() {
 
 		Bitmap bm = btmSurface.copy(Config.ARGB_8888, false);
-		am.delAnimotion(bm);
+		am.delAnimotion(bm); 
 
 		Paint canvasClear = new Paint();
 		canvasClear.setAlpha(0);

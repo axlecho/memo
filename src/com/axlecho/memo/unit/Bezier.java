@@ -18,7 +18,7 @@ public class Bezier {
 	}
 
 	public List<Point> getPoints(float precision) {
-		List<Point> bezier = new ArrayList<Point>();
+ 		List<Point> bezier = new ArrayList<Point>();
 		float d = 1.0f / precision;
 		for (float t = 0.0f; t < 1.0f; t += d) {
 			bezier.add(getPoint(t));
@@ -27,6 +27,7 @@ public class Bezier {
 		return bezier;
 	}
 
+	
 	private Point getPoint(float t) {
 		float x = (1 - t) * (1 - t) * (1 - t) * _src.x + 3 * t * (1 - t) * (1 - t) * _c1.x + 3 * t * t * (1 - t)
 				* _c2.x + t * t * t * _dst.x;
