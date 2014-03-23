@@ -164,13 +164,15 @@ class AnimotionManager {
 					
 					Bezier bezier = new Bezier(src,dst,c1,c2);
 					List<Point> points = bezier.getPoints(100);
-					float[] scaleRate = new float[101];
+					float[] scaleRate = new float[103];
 					for(int i = 0;i < points.size();++ i){
+						if(i > 102) {
+							Log.e("am","arrayindex out bound! i:" + i + " points.size:" + points.size());
+							return;
+						}
 						scaleRate[i] = points.get(i).y;
 					}
-					
-					Log.i("am","" + tarBtm.getConfig());
-					
+										
 					NdkDrawer.scale(tarBtm,scaleRate);
 					canvas.drawBitmap(tarBtm,0,0, null);
 					sfh.unlockCanvasAndPost(canvas);
