@@ -8,4 +8,6 @@ public class NdkDrawer {
 	}
 	
 	native static void scale(Bitmap btm, int[] scaleRateX,int[] scaleRateY);
+
+	native static void fillwhite(Bitmap btm);
 }

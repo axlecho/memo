@@ -35,11 +35,7 @@ int scale(AndroidBitmapInfo info,char* pixels,int *scaleRateX,int xlen,int *scal
         float rate = info.width /(float) (info.width - scaleRateX[x]);
 
         while(1){
-            //LOGI("linedst:%d,linesrc:%f,rate:%f",linedst,linesrc,rate);
-            //LOGI("info.width:%d,picwidth:%d",info.width,info.width -scaleRateX[x]);
-            //LOGI("scaleRateX:%d,scaleRateY:%d",scaleRateX[x],scaleRateY[y]);
-            //LOGI("x:%d,y:%d",x,y);
-            //LOGI("i:%d",i);
+            //linear interpolation
             copyPixels(pixels,i,linedst * 4 ,buffer,i,(int)linesrc * 4,info.stride);
             linesrc += rate;
             linedst ++;
@@ -92,6 +88,30 @@ JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_scale(JNIEnv* env,jobject
         LOGE("AndroidBitmap_lockPixels() failed ! error=%d", ret);
     }
     scale(info,pixels,scaleRateX,xlen,scaleRateY,ylen);
+    AndroidBitmap_unlockPixels(env,bitmap);
+    //ReleaseFloatArrayElements(scaleRateX);
+    //ReleaseFloatArrayElements(scaleRateY);
+}
+
+JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_fillwhite(JNIEnv* env,jobject thiz,jobject bitmap){
+    AndroidBitmapInfo info;
+    void* pixels;
+    int ret;
+    
+    if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+        LOGE("AndroidBitmap_getInfo() failed ! error=%d", ret);
+        return;
+    }
+
+    if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
+        LOGE("Bitmap format is not RGB_8888 !is %d.",info.format);
+        return;
+    }
+
+    if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+        LOGE("AndroidBitmap_lockPixels() failed ! error=%d", ret);
+    }
+    memset(pixels,0xff,info.height * info.width * 4);
     AndroidBitmap_unlockPixels(env,bitmap);
     //ReleaseFloatArrayElements(scaleRateX);
     //ReleaseFloatArrayElements(scaleRateY);

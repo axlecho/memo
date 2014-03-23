@@ -6,6 +6,7 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,7 +15,6 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Bitmap.Config;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -102,101 +102,156 @@ class AnimotionManager {
 		sfh.setFormat(PixelFormat.TRANSLUCENT);
 	}
 
+	private List<Point> getBezierPoints(float animWidth) {
+		Point src = new Point(0.0f, 0.0f);
+		Point dst = new Point(animWidth, height);
+		Point c1 = new Point(0.0f, 0.2f * height);
+		Point c2 = new Point(animWidth, 0.6f * height);
+
+		Bezier bezier = new Bezier(src, dst, c1, c2);
+		return bezier.getPoints(100);
+	}
+
 	Handler handler = new Handler() {
-		private int animWidth = 0;
-		private int animHeigt = -1;
+		private float animWidth = -1.0f;
+		// private float animHeigt = -1.0f;
+
+		private int tmpT = 0;
 
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+
+			List<Point> finalPoints = getBezierPoints(tarWidthIn);
+
+			int[] finalScaleRateX = new int[finalPoints.size()];
+			int[] finalScaleRateY = new int[finalPoints.size()];
+			for (int i = 0; i < finalPoints.size(); ++i) {
+				finalScaleRateX[i] = (int) finalPoints.get(i).x;
+				finalScaleRateY[i] = (int) finalPoints.get(i).y;
+			}
+			int finalT = finalPoints.size();
+
 			switch (msg.what) {
 			case RESET:
-				animWidth = 0;
-				animHeigt = 0;
+				animWidth = 0.0f;
+				tmpT = 0;
 				break;
 
 			case DELETEANIMOTION:
 
 				int animDx = width / animDxRate;
-				int animDy = height / animDyRate;
+
 				if (animWidth <= tarWidthIn) {
 					Canvas canvas = sfh.lockCanvas();
 
 					Paint canvasClear = new Paint();
 					canvasClear.setAlpha(0);
-					canvasClear.setXfermode(new PorterDuffXfermode(
-							PorterDuff.Mode.DST_IN));
+					canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
 					canvas.drawRect(0, 0, width, height, canvasClear);
 
 					Path tmpPath = new Path();
 					tmpPath.moveTo(0, 0);
-					tmpPath.cubicTo(0, height * 0.2f, animWidth, height * 0.6f,
-							animWidth, height);
+					tmpPath.cubicTo(0, height * 0.2f, animWidth, height * 0.6f, animWidth, height);
 					tmpPath.lineTo(tarWidthOut, height);
-					tmpPath.cubicTo(width, height * 0.2f, tarWidthOut,
-							height * 0.6f, width, 0);
+					tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
 					tmpPath.lineTo(0, 0);
 
 					Paint paint = new Paint();
 					paint.setColor(0);
 					paint.setAlpha(20);
 					canvas.drawPath(tmpPath, paint);
-
 					canvas.clipPath(tmpPath);
 
-					//Matrix matrix = new Matrix();
+					List<Point> points = getBezierPoints(animWidth);
 
-					//float[] src = new float[] { 0, 0, // 左上
-					//		width, 0,// 右上
-					//		width, height,// 右下
-					//		0, height // 左下
-					//};
+					int[] scaleRateX = new int[points.size() + 1];
+					int[] scaleRateY = new int[points.size() + 1];
 
-					//float[] dst = new float[] { 0, 0, // 左上
-					//		width, 0,// 右上
-					//		tarWidthOut, height,// 右下
-					//		animWidth, height // 左下
-					//};
-					//matrix.setPolyToPoly(src, 0, dst, 0, src.length >> 1);
-					Point src = new Point(0.0f,0.0f);
-					Point dst = new Point(animWidth,height);
-					Point c1 = new Point(0.0f,0.4f * height);
-					Point c2 = new Point (animWidth,0.6f * height);
-					
-					Bezier bezier = new Bezier(src,dst,c1,c2);
-					List<Point> points = bezier.getPoints(100);
-					int[] scaleRateX = new int[103];
-					int[] scaleRateY = new int[103];
-					for(int i = 0;i < points.size();++ i){
-						if(i > 102) {
-							Log.e("am","arrayindex out bound! i:" + i + " points.size:" + points.size());
-							return;
-						}
+					for (int i = 0; i < points.size(); ++i) {
 						scaleRateX[i] = (int) points.get(i).x;
-						scaleRateY[i] = (int) points.get(i).y;						
+						scaleRateY[i] = (int) points.get(i).y;
+					}
+
+					Bitmap tmpbm = tarBtm.copy(Config.ARGB_8888, false);
+
+					//Log.i("am", "animWidth:" + animWidth);
+					//Log.i("am", "pointsize:" + points.size());
+					//Log.i("am", "tarWidthIn:" + tarWidthIn);
+					
+					NdkDrawer.scale(tmpbm, scaleRateX, scaleRateY);
+					canvas.drawBitmap(tmpbm, 0, 0, null);
+
+					sfh.unlockCanvasAndPost(canvas);
+					
+					// finish the horizontal scaling
+					if (tarWidthIn - animWidth < 0.01){
+						animWidth += 1.0f;
+						return;
 					}
 					
-					Bitmap bm = tarBtm.copy(Config.ARGB_8888, false);
-					NdkDrawer.scale(bm,scaleRateX,scaleRateY);
-					canvas.drawBitmap(bm,0,0, null);
+					animWidth += tarWidthIn - animWidth < animDx ? tarWidthIn - animWidth : animDx;
 					
-					sfh.unlockCanvasAndPost(canvas);
-					animWidth += animDx;
-
+					Log.i("am","horizontal scaling");
 				} else {
-					if (animHeigt > height) {
+					if (tmpT >= finalT) {
 						timer.cancel();
 						return;
 					}
-					animHeigt += animDy;
-					Rect r = new Rect(0, 0, width, animHeigt);
-					Canvas canvas = sfh.lockCanvas(r);
+					
+					float tmpx = finalScaleRateX[tmpT];
+					float tmpy = finalScaleRateY[tmpT];
+					
+					int[] tmpScaleRateX = new int[finalT - tmpT + 10];
+					int[] tmpScaleRateY = new int[finalT - tmpT + 10];
+
+					for (int i = tmpT; i < finalT; ++i) {
+						tmpScaleRateX[i - tmpT] = finalScaleRateX[i] - (int)tmpx;
+						tmpScaleRateY[i - tmpT] = finalScaleRateY[i] - (int)tmpy;
+					}
+					
+					
+					Canvas canvas = sfh.lockCanvas();
+					if(canvas == null){
+						Log.e("am","lockCanvas failed");
+						return;
+					}
+					
 					Paint canvasClear = new Paint();
 					canvasClear.setAlpha(0);
-					canvasClear.setXfermode(new PorterDuffXfermode(
-							PorterDuff.Mode.DST_IN));
-					canvas.drawRect(0, 0, width, animHeigt, canvasClear);
+					canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+					canvas.drawRect(0, 0, width, height, canvasClear);
+
+					Path tmpPath = new Path();
+					tmpPath.moveTo(0, 0);
+					tmpPath.cubicTo(0, height * 0.2f, tarWidthIn, height * 0.6f, tarWidthIn, height);
+					tmpPath.lineTo(tarWidthOut, height);
+					tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
+					tmpPath.lineTo(0, 0);
+
+					Paint paint = new Paint();
+					paint.setColor(0);
+					paint.setAlpha(20);
+					canvas.drawPath(tmpPath, paint);
+					canvas.clipPath(tmpPath);
+					
+					//Paint canvasClear = new Paint();
+					//canvasClear.setAlpha(0);
+					//canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+					//canvas.drawRect(0, 0, width, tmpy, canvasClear);
+
+					Bitmap tmpbm = Bitmap.createBitmap(tarBtm, 0, 0,width - (int) tmpx,height - (int) tmpy);
+					//Bitmap tmpbm = Bitmap.createBitmap(width - (int) tmpx, height - (int) tmpy, Config.RGB_565);
+					NdkDrawer.scale(tmpbm, tmpScaleRateX, tmpScaleRateY);
+					//NdkDrawer.fillwhite(tmpbm);
+					canvas.drawBitmap(tmpbm, tmpx, tmpy, null);
+					
+					Log.i("am","tmpT:" + tmpT + " finalT:" + finalT);
+					Log.i("am","tmpx:" + tmpx + " tmpy:" + tmpy);
+					
+					//Log.i("am","bm width" + tmpbm.getWidth() + " bm height" + tmpbm.getHeight());
 					sfh.unlockCanvasAndPost(canvas);
+					tmpT += 5;
 				}
 
 				break;
