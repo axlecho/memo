@@ -109,7 +109,7 @@ class AnimotionManager {
 		Point c2 = new Point(animWidth, 0.6f * height);
 
 		Bezier bezier = new Bezier(src, dst, c1, c2);
-		return bezier.getPoints(100);
+		return bezier.getPoints(200);
 	}
 
 	Handler handler = new Handler() {
@@ -156,11 +156,6 @@ class AnimotionManager {
 					tmpPath.lineTo(tarWidthOut, height);
 					tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
 					tmpPath.lineTo(0, 0);
-
-					Paint paint = new Paint();
-					paint.setColor(0);
-					paint.setAlpha(20);
-					canvas.drawPath(tmpPath, paint);
 					canvas.clipPath(tmpPath);
 
 					List<Point> points = getBezierPoints(animWidth);
@@ -173,12 +168,7 @@ class AnimotionManager {
 						scaleRateY[i] = (int) points.get(i).y;
 					}
 
-					Bitmap tmpbm = tarBtm.copy(Config.ARGB_8888, false);
-
-					//Log.i("am", "animWidth:" + animWidth);
-					//Log.i("am", "pointsize:" + points.size());
-					//Log.i("am", "tarWidthIn:" + tarWidthIn);
-					
+					Bitmap tmpbm = tarBtm.copy(Config.ARGB_8888, false);					
 					NdkDrawer.scale(tmpbm, scaleRateX, scaleRateY);
 					canvas.drawBitmap(tmpbm, 0, 0, null);
 
@@ -229,41 +219,13 @@ class AnimotionManager {
 					tmpPath.lineTo(tarWidthOut, height);
 					tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
 					tmpPath.lineTo(0, 0);
-
-					Paint paint = new Paint();
-					paint.setColor(0);
-					paint.setAlpha(20);
-					canvas.drawPath(tmpPath, paint);
+					
 					canvas.clipPath(tmpPath);
-					
-					
-					//Paint canvasClear = new Paint();
-					//canvasClear.setAlpha(0);
-					//canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-					//canvas.drawRect(0, 0, width, tmpy, canvasClear);
-
-					if(tmpT == 80){
-						
-						Log.d("am","points size:"+ tmpScaleRateX.length);
-						String infoOfX = "";
-						String infoOfY = "";
-						for(int i = 0;i < tmpScaleRateX.length; ++i){
-							infoOfX += tmpScaleRateX[i] + " ";
-							infoOfY += tmpScaleRateY[i] + " ";
-					}
-						Log.d("am","tmpScaleRateX:" + infoOfX);	
-						Log.d("am","tmpScaleRateY:" + infoOfY);
-						
-					}
 					
 					Bitmap tmpbm = Bitmap.createBitmap(tarBtm, 0, 0,width - (int) tmpx,height - (int) tmpy);
 					NdkDrawer.scale(tmpbm, tmpScaleRateX, tmpScaleRateY);
 					canvas.drawBitmap(tmpbm, tmpx, tmpy, null);
 			
-					
-					//Log.i("am","tmpT:" + tmpT + " finalT:" + finalT + " points number:" + (finalT - tmpT));
-					//Log.i("am","tmpx:" + tmpx + " tmpy:" + tmpy);
-					//Log.i("am","bm width" + tmpbm.getWidth() + " bm height" + tmpbm.getHeight());
 					sfh.unlockCanvasAndPost(canvas);
 					tmpT += 5;
 				}

@@ -28,7 +28,6 @@ int scale(AndroidBitmapInfo info,char* pixels,int *scaleRateX,int xlen,int *scal
     memcpy(buffer,pixels,info.height * info.stride);
     memset(pixels,0x00,info.height * info.stride);
     int picwidth = info.stride / 4;
-    //LOGI("info height:%d,info.width:%d",info.height,info.width);
 
     for(i = 0;i < info.height;++ i){
         linedst = scaleRateX[x];
@@ -55,17 +54,8 @@ int scale(AndroidBitmapInfo info,char* pixels,int *scaleRateX,int xlen,int *scal
             ++ x;
         }
        
-        if(i == 88 || i == 89){
-            LOGI("i:%d,x:%d,y:%d",i,x,y);
-            LOGI("rate:%f,scaleRateX:%d,scaleRateY:%d",rate,scaleRateX[x],scaleRateY[y]);
-        }
-        
         while(1){
             //linear interpolation
-            if(scaleRateX[x] == 29 && scaleRateY[y] == 89){
-                LOGI("linedst:%d,linesrc:%d,info.stride:%d,info.width:%d",linedst,(int)linesrc,info.stride,info.width); 
-            }
-
             copyPixels(pixels,i,linedst * 4 ,buffer,i,(int)linesrc * 4,info.stride);
             linesrc += rate;
             linedst ++;
@@ -100,8 +90,6 @@ JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_scale(JNIEnv* env,jobject
         LOGE("AndroidBitmap_getInfo() failed ! error=%d", ret);
         return;
     }
-    //LOGI("scaleRateX[100]:%d,scaleRateY[100]:%d",scaleRateX[100],scaleRateY[100]);
-    //LOGI("bitmap height:%d width:%d stride:%d",info.height,info.width,info.stride);
 
     if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
         LOGE("Bitmap format is not RGB_8888 !is %d.",info.format);
@@ -113,8 +101,6 @@ JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_scale(JNIEnv* env,jobject
     }
     scale(info,pixels,scaleRateX,xlen,scaleRateY,ylen);
     AndroidBitmap_unlockPixels(env,bitmap);
-    //ReleaseFloatArrayElements(scaleRateX);
-    //ReleaseFloatArrayElements(scaleRateY);
 }
 
 JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_fillwhite(JNIEnv* env,jobject thiz,jobject bitmap){
@@ -137,6 +123,4 @@ JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_fillwhite(JNIEnv* env,job
     }
     memset(pixels,0xff,info.height * info.width * 4);
     AndroidBitmap_unlockPixels(env,bitmap);
-    //ReleaseFloatArrayElements(scaleRateX);
-    //ReleaseFloatArrayElements(scaleRateY);
 }
