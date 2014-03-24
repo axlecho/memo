@@ -112,6 +112,13 @@ class AnimotionManager {
 		return bezier.getPoints(200);
 	}
 
+	private void earserBackground(Canvas canvas){
+		Paint canvasClear = new Paint();
+		canvasClear.setAlpha(0);
+		canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+		canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), canvasClear);
+	}
+	
 	Handler handler = new Handler() {
 		private float animWidth = -1.0f;
 		// private float animHeigt = -1.0f;
@@ -136,6 +143,7 @@ class AnimotionManager {
 			case RESET:
 				animWidth = 0.0f;
 				tmpT = 0;
+				NdkDrawer.setBitmap(tarBtm);
 				break;
 
 			case DELETEANIMOTION:
@@ -144,12 +152,8 @@ class AnimotionManager {
 
 				if (animWidth <= tarWidthIn) {
 					Canvas canvas = sfh.lockCanvas();
-
-					Paint canvasClear = new Paint();
-					canvasClear.setAlpha(0);
-					canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-					canvas.drawRect(0, 0, width, height, canvasClear);
-
+					earserBackground(canvas);
+					
 					Path tmpPath = new Path();
 					tmpPath.moveTo(0, 0);
 					tmpPath.cubicTo(0, height * 0.2f, animWidth, height * 0.6f, animWidth, height);
@@ -168,30 +172,41 @@ class AnimotionManager {
 						scaleRateY[i] = (int) points.get(i).y;
 					}
 
-					Bitmap tmpbm = tarBtm.copy(Config.ARGB_8888, false);					
-					NdkDrawer.scale(tmpbm, scaleRateX, scaleRateY);
-					canvas.drawBitmap(tmpbm, 0, 0, null);
+					NdkDrawer.scale(tarBtm, scaleRateX, scaleRateY);
+					canvas.drawBitmap(tarBtm, 0, 0, null);
 
 					sfh.unlockCanvasAndPost(canvas);
-					
+
 					// finish the horizontal scaling
-					if (tarWidthIn - animWidth < 0.01){
+					if (tarWidthIn - animWidth < 0.01) {
 						animWidth += 1.0f;
 						return;
 					}
-					
+
 					animWidth += tarWidthIn - animWidth < animDx ? tarWidthIn - animWidth : animDx;
-					
-					Log.i("am","horizontal scaling");
+
+					Log.i("am", "horizontal scaling");
 				} else {
 					if (tmpT >= finalT) {
 						timer.cancel();
+						Log.i("am", "finish the work,timer cancel && release the img data.");
+						NdkDrawer.releaseBitmap();
+						Log.i("am", "release data ok");
+						
+						Canvas canvas = sfh.lockCanvas();
+						if (canvas == null) {
+							Log.e("am", "lockCanvas failed");
+							return;
+						}
+
+						earserBackground(canvas);
+						sfh.unlockCanvasAndPost(canvas);
 						return;
 					}
-					
+
 					int tmpx = finalScaleRateX[tmpT];
 					int tmpy = finalScaleRateY[tmpT];
-					
+
 					int[] tmpScaleRateX = new int[finalT - tmpT];
 					int[] tmpScaleRateY = new int[finalT - tmpT];
 
@@ -199,19 +214,14 @@ class AnimotionManager {
 						tmpScaleRateX[i - tmpT] = finalScaleRateX[i] - tmpx;
 						tmpScaleRateY[i - tmpT] = finalScaleRateY[i] - tmpy;
 					}
-					
-					
+
 					Canvas canvas = sfh.lockCanvas();
-					if(canvas == null){
-						Log.e("am","lockCanvas failed");
+					if (canvas == null) {
+						Log.e("am", "lockCanvas failed");
 						return;
 					}
-					
-					
-					Paint canvasClear = new Paint();
-					canvasClear.setAlpha(0);
-					canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-					canvas.drawRect(0, 0, width, height, canvasClear);
+
+					earserBackground(canvas);
 
 					Path tmpPath = new Path();
 					tmpPath.moveTo(0, 0);
@@ -219,15 +229,14 @@ class AnimotionManager {
 					tmpPath.lineTo(tarWidthOut, height);
 					tmpPath.cubicTo(width, height * 0.2f, tarWidthOut, height * 0.6f, width, 0);
 					tmpPath.lineTo(0, 0);
-					
 					canvas.clipPath(tmpPath);
 					
-					Bitmap tmpbm = Bitmap.createBitmap(tarBtm, 0, 0,width - (int) tmpx,height - (int) tmpy);
+					Bitmap tmpbm = Bitmap.createBitmap(width - (int) tmpx, height - (int) tmpy, Config.ARGB_8888);
 					NdkDrawer.scale(tmpbm, tmpScaleRateX, tmpScaleRateY);
 					canvas.drawBitmap(tmpbm, tmpx, tmpy, null);
-			
+
 					sfh.unlockCanvasAndPost(canvas);
-					tmpT += 5;
+					tmpT += 10;
 				}
 
 				break;
