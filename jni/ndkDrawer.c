@@ -7,10 +7,11 @@
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
 void copyPixels(char*dst,int dstx,int dsty,char* src,int srcx,int srcy,int width){
-    *(dst + dstx * width + dsty) = *(src + srcx * width + srcy);
-    *(dst + dstx * width + dsty + 1) = *(src + srcx * width + srcy + 1);
-    *(dst + dstx * width + dsty + 2) = *(src + srcx * width + srcy + 2);
-    *(dst + dstx * width + dsty + 3) = *(src + srcx * width + srcy + 3);
+    //*(dst + dstx * width + dsty) = *(src + srcx * width + srcy);
+    //*(dst + dstx * width + dsty + 1) = *(src + srcx * width + srcy + 1);
+    //*(dst + dstx * width + dsty + 2) = *(src + srcx * width + srcy + 2);
+    //*(dst + dstx * width + dsty + 3) = *(src + srcx * width + srcy + 3);
+    memcpy(dst + dstx * width + dsty,src + srcx * width +srcy,4);
 }
 
 int scale(AndroidBitmapInfo info,char* pixels,int *scaleRateX,int xlen,int *scaleRateY,int ylen){
