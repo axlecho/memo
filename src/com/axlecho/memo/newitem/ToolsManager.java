@@ -51,8 +51,7 @@ class ToolsManager {
 
 	public ToolsManager(Activity parent) {
 
-		csOnClickListener = new ColorSelectOnClickListener(
-				parent.getResources());
+		csOnClickListener = new ColorSelectOnClickListener(parent.getResources());
 		am = new AnimotionManager(parent);
 		initPaint();
 		initPenEraser(parent);
@@ -74,13 +73,10 @@ class ToolsManager {
 				currentPaint = eraserPaint;
 
 				cm.setPaint(currentPaint);
-				am.setPenSizeAnimation(btnSelectSize,
-						(int) currentPaint.getStrokeWidth());
+				am.setPenSizeAnimation(btnSelectSize, (int) currentPaint.getStrokeWidth());
 				seekbarSize.setProgress((int) currentPaint.getStrokeWidth());
-				btnPen.setBackgroundDrawable(parent.getResources().getDrawable(
-						R.drawable.pen));
-				btnEraser.setBackgroundDrawable(parent.getResources()
-						.getDrawable(R.drawable.eraserpress));
+				btnPen.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.pen));
+				btnEraser.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.eraserpress));
 			}
 
 		});
@@ -92,20 +88,16 @@ class ToolsManager {
 				currentPaint = penPaint;
 				cm.setPaint(currentPaint);
 
-				am.setPenSizeAnimation(btnSelectSize,
-						(int) currentPaint.getStrokeWidth());
+				am.setPenSizeAnimation(btnSelectSize, (int) currentPaint.getStrokeWidth());
 				seekbarSize.setProgress((int) currentPaint.getStrokeWidth());
 				penPaint.setAlpha(255);
 				penPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-				btnPen.setBackgroundDrawable(parent.getResources().getDrawable(
-						R.drawable.penpress));
-				btnEraser.setBackgroundDrawable(parent.getResources()
-						.getDrawable(R.drawable.eraser));
+				btnPen.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.penpress));
+				btnEraser.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.eraser));
 			}
 		});
 
-		btnPen.setBackgroundDrawable(parent.getResources().getDrawable(
-				R.drawable.penpress));
+		btnPen.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.penpress));
 	}
 
 	private void initPaint() {
@@ -128,21 +120,17 @@ class ToolsManager {
 	private int popupColorHeight = -1;
 
 	private void initPopupSize(Activity parent) {
-		popupSizeView = parent.getLayoutInflater().inflate(
-				R.layout.menu_selectsize, null, true);
-		popupSize = new PopupWindow(popupSizeView, LayoutParams.FILL_PARENT,
-				LayoutParams.WRAP_CONTENT, true);
+		popupSizeView = parent.getLayoutInflater().inflate(R.layout.menu_selectsize, null, true);
+		popupSize = new PopupWindow(popupSizeView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
 		popupSize.setBackgroundDrawable(new BitmapDrawable());
 		popupSize.setOutsideTouchable(true);
 
 		penSizeView = (TextView) popupSizeView.findViewById(R.id.view_penSize);
-		seekbarSize = (SeekBar) popupSizeView
-				.findViewById(R.id.seekbar_selectsize);
+		seekbarSize = (SeekBar) popupSizeView.findViewById(R.id.seekbar_selectsize);
 		seekbarSize.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
-			public void onProgressChanged(SeekBar arg0, int progress,
-					boolean fromUser) {
+			public void onProgressChanged(SeekBar arg0, int progress, boolean fromUser) {
 				penSizeView.setText("" + progress);
 				currentPaint.setStrokeWidth(progress);
 				am.setPenSizeAnimation(btnSelectSize, progress);
@@ -160,10 +148,8 @@ class ToolsManager {
 
 		});
 
-		int w = View.MeasureSpec.makeMeasureSpec(0,
-				View.MeasureSpec.UNSPECIFIED);
-		int h = View.MeasureSpec.makeMeasureSpec(0,
-				View.MeasureSpec.UNSPECIFIED);
+		int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 		popupSizeView.measure(w, h);
 		popupSizeHeight = popupSizeView.getMeasuredHeight();
 
@@ -175,8 +161,7 @@ class ToolsManager {
 				if (popupSize.isShowing()) {
 					popupSize.dismiss();
 				} else {
-					popupSize.showAsDropDown(v, 0,
-							-(v.getHeight() + popupSizeHeight));
+					popupSize.showAsDropDown(v, 0, -(v.getHeight() + popupSizeHeight));
 				}
 			}
 
@@ -186,27 +171,18 @@ class ToolsManager {
 	}
 
 	private void initPopupColor(Activity parent) {
-		popupColorView = parent.getLayoutInflater().inflate(
-				R.layout.menu_selectcolor, null, true);
-		popupColor = new PopupWindow(popupColorView, LayoutParams.FILL_PARENT,
-				LayoutParams.WRAP_CONTENT, true);
+		popupColorView = parent.getLayoutInflater().inflate(R.layout.menu_selectcolor, null, true);
+		popupColor = new PopupWindow(popupColorView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
 		popupColor.setBackgroundDrawable(new BitmapDrawable());
 		popupColor.setOutsideTouchable(true);
 
-		btnSelectGreen = (Button) popupColorView
-				.findViewById(R.id.btn_select_green);
-		btnSelectBlue = (Button) popupColorView
-				.findViewById(R.id.btn_select_blue);
-		btnSelectRed = (Button) popupColorView
-				.findViewById(R.id.btn_select_red);
-		btnSelectYellow = (Button) popupColorView
-				.findViewById(R.id.btn_select_yellow);
-		btnSelectBlack = (Button) popupColorView
-				.findViewById(R.id.btn_select_black);
-		btnSelectIvory = (Button) popupColorView
-				.findViewById(R.id.btn_select_ivory);
-		btnSelectPurple = (Button) popupColorView
-				.findViewById(R.id.btn_select_purple);
+		btnSelectGreen = (Button) popupColorView.findViewById(R.id.btn_select_green);
+		btnSelectBlue = (Button) popupColorView.findViewById(R.id.btn_select_blue);
+		btnSelectRed = (Button) popupColorView.findViewById(R.id.btn_select_red);
+		btnSelectYellow = (Button) popupColorView.findViewById(R.id.btn_select_yellow);
+		btnSelectBlack = (Button) popupColorView.findViewById(R.id.btn_select_black);
+		btnSelectIvory = (Button) popupColorView.findViewById(R.id.btn_select_ivory);
+		btnSelectPurple = (Button) popupColorView.findViewById(R.id.btn_select_purple);
 
 		btnSelectGreen.setOnClickListener(csOnClickListener);
 		btnSelectBlue.setOnClickListener(csOnClickListener);
@@ -216,10 +192,8 @@ class ToolsManager {
 		btnSelectIvory.setOnClickListener(csOnClickListener);
 		btnSelectPurple.setOnClickListener(csOnClickListener);
 
-		int w = View.MeasureSpec.makeMeasureSpec(0,
-				View.MeasureSpec.UNSPECIFIED);
-		int h = View.MeasureSpec.makeMeasureSpec(0,
-				View.MeasureSpec.UNSPECIFIED);
+		int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 		popupColorView.measure(w, h);
 		popupColorHeight = popupColorView.getMeasuredHeight();
 
@@ -231,8 +205,7 @@ class ToolsManager {
 				if (popupColor.isShowing()) {
 					popupColor.dismiss();
 				} else {
-					popupColor.showAsDropDown(v, 0, -(v.getHeight()
-							+ popupColorHeight + 5));
+					popupColor.showAsDropDown(v, 0, -(v.getHeight() + popupColorHeight + 5));
 
 				}
 			}

@@ -199,15 +199,15 @@ class AnimotionManager {
 						return;
 					}
 					
-					float tmpx = finalScaleRateX[tmpT];
-					float tmpy = finalScaleRateY[tmpT];
+					int tmpx = finalScaleRateX[tmpT];
+					int tmpy = finalScaleRateY[tmpT];
 					
-					int[] tmpScaleRateX = new int[finalT - tmpT + 10];
-					int[] tmpScaleRateY = new int[finalT - tmpT + 10];
+					int[] tmpScaleRateX = new int[finalT - tmpT];
+					int[] tmpScaleRateY = new int[finalT - tmpT];
 
 					for (int i = tmpT; i < finalT; ++i) {
-						tmpScaleRateX[i - tmpT] = finalScaleRateX[i] - (int)tmpx;
-						tmpScaleRateY[i - tmpT] = finalScaleRateY[i] - (int)tmpy;
+						tmpScaleRateX[i - tmpT] = finalScaleRateX[i] - tmpx;
+						tmpScaleRateY[i - tmpT] = finalScaleRateY[i] - tmpy;
 					}
 					
 					
@@ -216,6 +216,7 @@ class AnimotionManager {
 						Log.e("am","lockCanvas failed");
 						return;
 					}
+					
 					
 					Paint canvasClear = new Paint();
 					canvasClear.setAlpha(0);
@@ -235,20 +236,33 @@ class AnimotionManager {
 					canvas.drawPath(tmpPath, paint);
 					canvas.clipPath(tmpPath);
 					
+					
 					//Paint canvasClear = new Paint();
 					//canvasClear.setAlpha(0);
 					//canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
 					//canvas.drawRect(0, 0, width, tmpy, canvasClear);
 
+					if(tmpT == 80){
+						
+						Log.d("am","points size:"+ tmpScaleRateX.length);
+						String infoOfX = "";
+						String infoOfY = "";
+						for(int i = 0;i < tmpScaleRateX.length; ++i){
+							infoOfX += tmpScaleRateX[i] + " ";
+							infoOfY += tmpScaleRateY[i] + " ";
+					}
+						Log.d("am","tmpScaleRateX:" + infoOfX);	
+						Log.d("am","tmpScaleRateY:" + infoOfY);
+						
+					}
+					
 					Bitmap tmpbm = Bitmap.createBitmap(tarBtm, 0, 0,width - (int) tmpx,height - (int) tmpy);
-					//Bitmap tmpbm = Bitmap.createBitmap(width - (int) tmpx, height - (int) tmpy, Config.RGB_565);
 					NdkDrawer.scale(tmpbm, tmpScaleRateX, tmpScaleRateY);
-					//NdkDrawer.fillwhite(tmpbm);
 					canvas.drawBitmap(tmpbm, tmpx, tmpy, null);
+			
 					
-					Log.i("am","tmpT:" + tmpT + " finalT:" + finalT);
-					Log.i("am","tmpx:" + tmpx + " tmpy:" + tmpy);
-					
+					//Log.i("am","tmpT:" + tmpT + " finalT:" + finalT + " points number:" + (finalT - tmpT));
+					//Log.i("am","tmpx:" + tmpx + " tmpy:" + tmpy);
 					//Log.i("am","bm width" + tmpbm.getWidth() + " bm height" + tmpbm.getHeight());
 					sfh.unlockCanvasAndPost(canvas);
 					tmpT += 5;

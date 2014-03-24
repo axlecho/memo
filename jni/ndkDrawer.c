@@ -26,29 +26,53 @@ int scale(AndroidBitmapInfo info,char* pixels,int *scaleRateX,int xlen,int *scal
         return 1;
     }
     memcpy(buffer,pixels,info.height * info.stride);
-//    memset(buffer,0xff,info.height * info.stride);    
     memset(pixels,0x00,info.height * info.stride);
     int picwidth = info.stride / 4;
+    //LOGI("info height:%d,info.width:%d",info.height,info.width);
+
     for(i = 0;i < info.height;++ i){
         linedst = scaleRateX[x];
         linesrc = 0;
+
+        if((info.width -scaleRateX[x]) < 0.0001){
+            LOGE("info width == scaleRateX:scaleRateX[x]:%d",scaleRateX[x]);
+            return 1;
+        }
+
         float rate = info.width /(float) (info.width - scaleRateX[x]);
 
+        if(y >= ylen){
+            LOGE("scaleRateY outof arrayindexbound, y:%d",y);
+            return 1;
+        }
+        if(x >= xlen){
+            LOGE("scaleRateX outof arrayindexbound,x:%d",x);
+            return 1;
+        }
+
+        if(i >= scaleRateY[y]){
+            ++ y;
+            ++ x;
+        }
+       
+        if(i == 88 || i == 89){
+            LOGI("i:%d,x:%d,y:%d",i,x,y);
+            LOGI("rate:%f,scaleRateX:%d,scaleRateY:%d",rate,scaleRateX[x],scaleRateY[y]);
+        }
+        
         while(1){
             //linear interpolation
+            if(scaleRateX[x] == 29 && scaleRateY[y] == 89){
+                LOGI("linedst:%d,linesrc:%d,info.stride:%d,info.width:%d",linedst,(int)linesrc,info.stride,info.width); 
+            }
+
             copyPixels(pixels,i,linedst * 4 ,buffer,i,(int)linesrc * 4,info.stride);
             linesrc += rate;
             linedst ++;
-            if(linedst > info.width || linesrc > info.width)
-                break;
+            if(linedst >= info.width || linesrc >= info.width)
+                    break;
 
-	    if(i > scaleRateY[y]){
-                ++ y;
-                ++ x;
-            }
-            if(y > ylen){
-                return 1;
-            }
+
         }
     }
 
