@@ -19,15 +19,10 @@ public class WelcomeActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_welcome);
 
 		// stop for show the loading interface;
-		final Intent intent = new Intent(WelcomeActivity.this,
-				MainActivity.class);
+		final Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override

@@ -71,12 +71,16 @@ class ToolsManager {
 			@Override
 			public void onClick(View arg0) {
 				currentPaint = eraserPaint;
-
 				cm.setPaint(currentPaint);
 				am.setPenSizeAnimation(btnSelectSize, (int) currentPaint.getStrokeWidth());
 				seekbarSize.setProgress((int) currentPaint.getStrokeWidth());
 				btnPen.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.pen));
 				btnEraser.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.eraserpress));
+
+				// disable selectcolor button
+				btnSelectColor.setOnClickListener(null);
+				btnSelectColor.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.colorpress));
+
 			}
 
 		});
@@ -94,10 +98,27 @@ class ToolsManager {
 				penPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 				btnPen.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.penpress));
 				btnEraser.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.eraser));
+
+				//enable selectcolor button
+				btnSelectColor.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.btnstyle_color));
+				btnSelectColor.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						if (popupColor.isShowing()) {
+							popupColor.dismiss();
+						} else {
+							popupColor.showAsDropDown(v, 0, -(v.getHeight() + popupColorHeight + 5));
+
+						}
+					}
+
+				});
 			}
 		});
 
 		btnPen.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.penpress));
+
 	}
 
 	private void initPaint() {
@@ -108,7 +129,7 @@ class ToolsManager {
 		penPaint.setStyle(Style.STROKE);
 
 		eraserPaint = new Paint();
-		eraserPaint.setStrokeWidth(Const.DEFAULTPENSIZE);
+		eraserPaint.setStrokeWidth(Const.DEFAULTERASERSIZE);
 		eraserPaint.setAlpha(0);
 		eraserPaint.setStyle(Style.STROKE);
 		eraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));

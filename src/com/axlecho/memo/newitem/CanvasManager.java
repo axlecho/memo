@@ -159,10 +159,6 @@ class CanvasManager {
 	}
 
 	public void clearSurface() {
-
-		Bitmap bm = btmImage.copy(Config.ARGB_8888, false);
-		am.delAnimotion(bm); 
-
 		Paint canvasClear = new Paint();
 		canvasClear.setAlpha(0);
 		canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
@@ -180,5 +176,24 @@ class CanvasManager {
 
 	public void setPaint(Paint currentPaint) {
 		paint = currentPaint;
+	}
+
+	public void clear() {
+		canvasImage.drawBitmap(btmSurface, 0, 0, null);
+		Bitmap bm = btmImage.copy(Config.ARGB_8888, false);
+
+
+		Paint canvasClear = new Paint();
+		canvasClear.setAlpha(0);
+		canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+		
+		canvasSurface.drawRect(0, 0, canvasSurface.getWidth(), canvasSurface.getHeight(), canvasClear);
+		imageSurfaceView.invalidate();
+		
+		canvasImage.drawRect(0, 0, canvasSurface.getWidth(), canvasSurface.getHeight(), canvasClear);
+		imageView.invalidate();
+		
+		am.delAnimotion(bm); 
+		
 	}
 }

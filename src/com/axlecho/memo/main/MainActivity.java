@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -44,10 +48,8 @@ public class MainActivity extends SherlockActivity {
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int pos,
-					long id) {
-				final Intent intent = new Intent(MainActivity.this,
-						ShowActivity.class);
+			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+				final Intent intent = new Intent(MainActivity.this, ShowActivity.class);
 				Map<String, Object> m = listDatas.get(pos);
 				Log.i("axlecho", (String) m.get("img"));
 				intent.putExtra("pic_path", (String) m.get("img"));
@@ -58,8 +60,7 @@ public class MainActivity extends SherlockActivity {
 		});
 		setContentView(listView);
 
-		listView.setBackgroundColor(this.getResources().getColor(
-				R.color.bgwhite));
+		listView.setBackgroundColor(this.getResources().getColor(R.color.bgwhite));
 		if (listDatas.isEmpty()) {
 			listView.setBackgroundResource(R.drawable.master_null_bg);
 		}
@@ -73,16 +74,38 @@ public class MainActivity extends SherlockActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem it) {
+		AlertDialog.Builder builder = new Builder(this);
 		switch (it.getItemId()) {
 		case R.id.menu_add:
 			Intent intent = new Intent(MainActivity.this, NewItemActivity.class);
 			startActivityForResult(intent, Const.NEWITEMRESULT);
 			break;
 		case R.id.action_about:
-			Log.i("menu", "item about");
+			builder.setMessage("作者：axlecho@gmail.com\n" 
+					+ "Copyright © 2014 axlecho");
+
+			builder.setTitle("关于 涂鸦笔记");
+			builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+
+			AlertDialog aboutDialog = builder.create();
+			aboutDialog.setCancelable(true);
+			aboutDialog.show();
 			break;
 		case R.id.action_settings:
-			Log.i("menu", "item setting");
+			builder.setMessage("正在囧囧有序的施工中。。");
+			builder.setTitle("有些尴尬。。");
+			builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			AlertDialog settingDialog = builder.create();
+			settingDialog.setCancelable(true);
+			settingDialog.show();
 			break;
 		default:
 			return super.onOptionsItemSelected(it);
@@ -98,8 +121,7 @@ public class MainActivity extends SherlockActivity {
 		}
 
 		if (!listDatas.isEmpty()) {
-			listView.setBackgroundColor(this.getResources().getColor(
-					R.color.bgwhite));
+			listView.setBackgroundColor(this.getResources().getColor(R.color.bgwhite));
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -153,25 +175,20 @@ public class MainActivity extends SherlockActivity {
 				if (endX - pointX < -50) {
 
 					// 获取到ListView第一个可见条目的position
-					int firstVisiblePosition = listView
-							.getFirstVisiblePosition();
-					View view = listView.getChildAt(position
-							- firstVisiblePosition);
+					int firstVisiblePosition = listView.getFirstVisiblePosition();
+					View view = listView.getChildAt(position - firstVisiblePosition);
 
 					if (view == null)
 						break;
 					Button delbtn = (Button) view.findViewById(R.id.btn_del);
-					TextView deletebtnMask = (TextView) view
-							.findViewById(R.id.btn_del_mask);
-					TextView bottomMask = (TextView) view
-							.findViewById(R.id.note);
+					TextView deletebtnMask = (TextView) view.findViewById(R.id.btn_del_mask);
+					TextView bottomMask = (TextView) view.findViewById(R.id.note);
 
 					bottomMask.setVisibility(View.INVISIBLE);
 					delbtn.setVisibility(View.VISIBLE);
 
 					deletebtnMask.setVisibility(View.VISIBLE);
-					deletebtnMask.startAnimation(AnimationUtils.loadAnimation(
-							context, R.anim.delete_show));
+					deletebtnMask.startAnimation(AnimationUtils.loadAnimation(context, R.anim.delete_show));
 					deletebtnMask.setVisibility(View.INVISIBLE);
 
 					curDel_btn = delbtn;
