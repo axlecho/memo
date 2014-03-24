@@ -6,19 +6,19 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Bitmap.Config;
-import android.graphics.Paint.Style;
 import android.os.Environment;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.View.OnTouchListener;
+import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
 
@@ -179,21 +179,23 @@ class CanvasManager {
 	}
 
 	public void clear() {
-		canvasImage.drawBitmap(btmSurface, 0, 0, null);
-		Bitmap bm = btmImage.copy(Config.ARGB_8888, false);
-
+		Bitmap bm = Bitmap.createBitmap(btmImage.getWidth(), btmImage.getHeight(), Config.ARGB_8888);
+		Canvas canvas = new Canvas(bm);
+		canvas.drawARGB(90,0,0,0);
+		canvas.drawBitmap(btmImage, 0, 0, null);
+		canvas.drawBitmap(btmSurface, 0, 0, null);
 
 		Paint canvasClear = new Paint();
 		canvasClear.setAlpha(0);
 		canvasClear.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-		
+
 		canvasSurface.drawRect(0, 0, canvasSurface.getWidth(), canvasSurface.getHeight(), canvasClear);
 		imageSurfaceView.invalidate();
-		
+
 		canvasImage.drawRect(0, 0, canvasSurface.getWidth(), canvasSurface.getHeight(), canvasClear);
 		imageView.invalidate();
-		
-		am.delAnimotion(bm); 
-		
+
+		am.delAnimotion(bm);
+
 	}
 }
