@@ -1,4 +1,4 @@
-package com.axlecho.memo;
+package axlecho.memo;
 
 import android.content.pm.ActivityInfo;
 import android.graphics.BitmapFactory;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
+import com.axlecho.memo.R;
 
 public class ShowActivity extends SherlockActivity {
 	private ImageView imageView;

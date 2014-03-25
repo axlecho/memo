@@ -1,4 +1,4 @@
-package com.axlecho.memo.main;
+package axlecho.memo.main;
 
 import java.util.List;
 import java.util.Map;

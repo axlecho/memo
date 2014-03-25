@@ -1,4 +1,4 @@
-package com.axlecho.memo.newitem;
+package axlecho.memo.newitem;
 
 import android.graphics.Bitmap;
 

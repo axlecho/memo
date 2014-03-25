@@ -1,4 +1,4 @@
-package com.axlecho.memo.main;
+package axlecho.memo.main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,15 +21,15 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import axlecho.memo.ShowActivity;
+import axlecho.memo.newitem.NewItemActivity;
+import axlecho.memo.unit.Const;
+import axlecho.memo.unit.SqlManager;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.axlecho.memo.R;
-import com.axlecho.memo.ShowActivity;
-import com.axlecho.memo.newitem.NewItemActivity;
-import com.axlecho.memo.unit.Const;
-import com.axlecho.memo.unit.SqlManager;
 
 public class MainActivity extends SherlockActivity {
 	private ListView listView;

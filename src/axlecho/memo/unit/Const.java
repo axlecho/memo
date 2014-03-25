@@ -1,4 +1,4 @@
-package com.axlecho.memo.unit;
+package axlecho.memo.unit;
 
 import android.graphics.Color;
 

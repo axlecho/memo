@@ -1,4 +1,4 @@
-package com.axlecho.memo.newitem;
+package axlecho.memo.newitem;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -15,9 +15,9 @@ import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import axlecho.memo.unit.Const;
 
 import com.axlecho.memo.R;
-import com.axlecho.memo.unit.Const;
 
 class ToolsManager {
 	private Button btnEraser;

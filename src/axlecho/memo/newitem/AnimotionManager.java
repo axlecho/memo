@@ -1,4 +1,4 @@
-package com.axlecho.memo.newitem;
+package axlecho.memo.newitem;
 
 import java.util.List;
 import java.util.Timer;
@@ -23,10 +23,10 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Button;
+import axlecho.memo.unit.Bezier;
+import axlecho.memo.unit.Point;
 
 import com.axlecho.memo.R;
-import com.axlecho.memo.unit.Bezier;
-import com.axlecho.memo.unit.Point;
 
 class AnimotionManager {
 	private SurfaceView sfv;

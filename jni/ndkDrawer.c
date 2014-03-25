@@ -71,7 +71,7 @@ int scale(AndroidBitmapInfo info,char* pixels,char* buffer,int *scaleRateX,int x
 }
 
 
-JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_scale(JNIEnv* env,jobject thiz,jobject bitmap,\
+JNIEXPORT void Java_axlecho_memo_newitem_NdkDrawer_scale(JNIEnv* env,jobject thiz,jobject bitmap,\
     jintArray _scalerateX,jintArray _scalerateY){
     AndroidBitmapInfo info;
     void* pixels;
@@ -104,7 +104,7 @@ JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_scale(JNIEnv* env,jobject
     AndroidBitmap_unlockPixels(env,bitmap);
 }
 
-JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_setdata(JNIEnv* env,jobject this,jobject bitmap){
+JNIEXPORT void Java_axlecho_memo_newitem_NdkDrawer_setdata(JNIEnv* env,jobject this,jobject bitmap){
     AndroidBitmapInfo info;
     void* pixels;
     int ret;
@@ -127,11 +127,11 @@ JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_setdata(JNIEnv* env,jobje
     AndroidBitmap_unlockPixels(env,bitmap);
 }
 
-JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_releasedata(JNIEnv* env,jobject thiz){
+JNIEXPORT void Java_axlecho_memo_newitem_NdkDrawer_releasedata(JNIEnv* env,jobject thiz){
     free(buffer);
 }
 
-JNIEXPORT void Java_com_axlecho_memo_newitem_NdkDrawer_fillwhite(JNIEnv* env,jobject thiz,jobject bitmap){
+JNIEXPORT void Java_axlecho_memo_newitem_NdkDrawer_fillwhite(JNIEnv* env,jobject thiz,jobject bitmap){
     AndroidBitmapInfo info;
     void* pixels;
     int ret;

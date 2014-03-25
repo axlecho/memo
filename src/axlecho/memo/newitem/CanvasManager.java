@@ -1,4 +1,4 @@
-package com.axlecho.memo.newitem;
+package axlecho.memo.newitem;
 
 import java.io.File;
 import java.io.FileOutputStream;

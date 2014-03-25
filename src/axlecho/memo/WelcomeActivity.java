@@ -1,4 +1,4 @@
-package com.axlecho.memo;
+package axlecho.memo;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -8,9 +8,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+import axlecho.memo.main.MainActivity;
+import axlecho.memo.unit.SqlManager;
 
-import com.axlecho.memo.main.MainActivity;
-import com.axlecho.memo.unit.SqlManager;
+import com.axlecho.memo.R;
 
 public class WelcomeActivity extends Activity {
 

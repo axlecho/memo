@@ -1,4 +1,4 @@
-package com.axlecho.memo.unit;
+package axlecho.memo.unit;
 
 public class Point {
 	public Point(float x, float y) {

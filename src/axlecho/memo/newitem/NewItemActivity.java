@@ -1,4 +1,4 @@
-package com.axlecho.memo.newitem;
+package axlecho.memo.newitem;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,13 +26,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import axlecho.memo.unit.Const;
+import axlecho.memo.unit.SqlManager;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.axlecho.memo.R;
-import com.axlecho.memo.unit.Const;
-import com.axlecho.memo.unit.SqlManager;
 
 public class NewItemActivity extends SherlockActivity {
 
