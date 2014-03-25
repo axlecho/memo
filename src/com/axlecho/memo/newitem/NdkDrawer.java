@@ -27,7 +27,7 @@ public class NdkDrawer {
 
 		releasedata();
 		flag = false;
-		return false;
+		return true;
 	}
 
 	native static void scale(Bitmap btm, int[] scaleRateX, int[] scaleRateY);
