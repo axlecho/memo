@@ -60,9 +60,8 @@ int scale(AndroidBitmapInfo info,char* pixels,char* buffer,int *scaleRateX,int x
             copyPixels(pixels,i,linedst * 4,info.stride,buffer,i,(int)linesrc * 4,bufferinfo.stride);
             linesrc += rate;
             linedst ++;
-            if(linedst >= info.width || linesrc >= info.width)
+            if(linedst >= info.width || linesrc >= bufferinfo.width)
                     break;
-
 
         }
     }
