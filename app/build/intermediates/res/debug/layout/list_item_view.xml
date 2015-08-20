@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/bgwhite"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/item_style"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_weight="0.65"
+                android:gravity="bottom|right"
+                android:text="2012-11-28"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_weight="0.65"
+                android:gravity="top|right"
+                android:text="06:10:25"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/img"
+            android:layout_width="135dp"
+            android:layout_height="135dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/item_style" />
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <TextView
+                android:id="@+id/note"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:gravity="left|center_vertical"
+                android:text="哦哦哦"
+                android:textColor="#000000"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_del"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/button_style"
+                android:paddingBottom="2dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="2dp"
+                android:text="@string/btn_delete"
+                android:textColor="#cecece"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btn_del_mask"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/barwhite"
+                android:paddingBottom="6dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="6dp"
+                android:text="@string/btn_delete"
+                android:textColor="@color/barwhite"
+                android:textSize="16sp"
+                android:visibility="gone" />
+        </FrameLayout>
+    </LinearLayout>
+
+</LinearLayout><!-- From: file:/E:/github/memo/app/src/main/res/layout/list_item_view.xml -->

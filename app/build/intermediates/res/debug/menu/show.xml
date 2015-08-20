@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_edit_show"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_edit"
+        android:visible="false"/>
+
+</menu><!-- From: file:/E:/github/memo/app/src/main/res/menu/show.xml -->

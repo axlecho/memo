@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="@color/bgwhite">
+
+    <ImageView
+        android:id="@+id/view_image"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+    <TextView
+        android:id="@+id/view_note"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#6fffffff"
+        android:gravity="center"
+        android:text="茉莉茉莉"
+        android:textSize="16sp" />
+
+</FrameLayout><!-- From: file:/E:/github/memo/app/src/main/res/layout/activity_show.xml -->

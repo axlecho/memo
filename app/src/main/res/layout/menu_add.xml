@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="right"
+    android:orientation="vertical">
+    <EditText
+        android:id="@+id/view_addnote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="gone" >
+    </EditText>
+    
+    <LinearLayout
+        android:id="@+id/context"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_addtext"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/btnstyle_addtext" >
+        </Button>
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="fill_parent"
+            android:background="#d5d5d5" />
+
+        <Button
+            android:id="@+id/btn_addpic"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/btnstyle_addpic" >
+        </Button>
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="3dp"
+        android:background="#d5d5d5" />
+
+</LinearLayout>

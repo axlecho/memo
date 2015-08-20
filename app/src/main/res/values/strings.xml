@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">涂鸦笔记</string>
+    <string name="action_settings">设置</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_add">添加</string>
+    <string name="menu_edit">编辑</string>
+    <string name="menu_save">完成</string>
+    <string name="menu_photo">照片</string>
+	<string name="label_newitem">新建记录</string>
+	<string name="select_color">选择颜色</string>
+	<string name="select_size">选择笔触大小</string>
+	<string name="menu_tool">工具</string>
+	<string name="menu_text">文字</string>
+	<string name="add_text">添加文字</string>
+	<string name="btn_eraser">橡皮擦</string>
+	<string name="label_show">记录</string>
+	<string name="btn_delete">删除</string>
+	<string name="btn_pen">笔</string>
+	<string name="add_photo">添加图片</string>
+	<string name="record_add">添加纪录</string>
+	<string name="about">关于</string>
+</resources>

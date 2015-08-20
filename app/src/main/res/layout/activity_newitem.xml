@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bgwhite"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/view_image_context"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+    </ImageView>
+
+    <SurfaceView
+        android:id="@+id/view_image_del"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00000000" />
+
+    <ImageView
+        android:id="@+id/view_image_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00000000" >
+    </ImageView>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/barwhite"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_pen"
+            android:layout_width="40dp"
+            android:layout_height="25dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/btnstyle_pen" />
+
+        <Button
+            android:id="@+id/btn_eraser"
+            android:layout_width="40dp"
+            android:layout_height="25dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/btn_pen"
+            android:background="@drawable/btnstyle_eraser" />
+
+        <Button
+            android:id="@+id/btn_selectcolor"
+            android:layout_width="40dp"
+            android:layout_height="25dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/btn_eraser"
+            android:background="@drawable/btnstyle_color" />
+
+        <Button
+            android:id="@+id/btn_selectsize"
+            android:layout_width="40dp"
+            android:layout_height="25dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/btn_selectcolor"
+            android:background="@drawable/btnstyle_size" />
+
+        <Button
+            android:id="@+id/btn_del_content"
+            android:layout_width="40dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/btnstyle_del"
+            android:gravity="right" />
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="40dp"
+            android:layout_height="25dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_toLeftOf="@id/btn_del_content"
+            android:background="@drawable/btnstyle_save" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_below="@+id/btn_save" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/view_note"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#6fffffff"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:visibility="invisible" />
+
+
+</FrameLayout>
