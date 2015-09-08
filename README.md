@@ -22,6 +22,5 @@
 
 其他
 ---
-程序下载：<http://www.moli.org.cn/Xiang%20Mu%20memo/>  
-删除效果原理：<http://www.moli.org.cn/androidTu%20Ya%20Bi%20Ji%20Shan%20Chu%20Xiao%20Guo%20Shi%20Xian%20/>
+程序下载：<https://play.google.com/store/apps/details?id=axlecho.memo/>  
 
