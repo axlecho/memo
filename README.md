@@ -22,5 +22,5 @@
 
 其他
 ---
-程序下载：<https://play.google.com/store/apps/details?id=axlecho.memo/>  
+程序下载：<https://play.google.com/store/apps/details?id=axlecho.memo>  
 
